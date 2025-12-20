@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { 
   User, 
   Mail, 
@@ -15,19 +16,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-
-// Mock profile data
-const profile = {
-  name: "Maria Silva",
-  email: "maria@email.com",
-  phone: "(11) 99999-1234",
-  trainer: "João Personal",
-  plan: "Hipertrofia - Avançado",
-  memberSince: "2024-01-15",
-  goals: "Ganho de massa muscular e definição",
-  height: 165,
-  weight: 62,
-};
+import { useAuth } from "@/contexts/AuthContext";
+import { useStudentRecord, useStudentMeasurements } from "@/hooks/useStudentData";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useToast } from "@/hooks/use-toast";
 
 const menuItems = [
   { icon: Bell, label: "Notificações", href: "/student/notifications" },
@@ -36,6 +28,43 @@ const menuItems = [
 ];
 
 export default function StudentProfile() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, profile, signOut, userType } = useAuth();
+  const { data: student, isLoading: studentLoading } = useStudentRecord();
+  const { data: measurements } = useStudentMeasurements();
+
+  const latestMeasurement = measurements?.[0];
+  
+  const displayName = student?.name || profile?.name || user?.user_metadata?.name || "Usuário";
+  const displayEmail = student?.email || user?.email || "";
+  const initials = displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast({
+        title: "Logout realizado",
+        description: "Até logo!",
+      });
+      navigate("/", { replace: true });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Erro ao sair",
+        description: "Tente novamente.",
+      });
+    }
+  };
+
+  if (studentLoading && userType !== null) {
+    return (
+      <div className="min-h-screen bg-background dark flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Carregando perfil..." />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background dark pb-24">
       {/* Header */}
@@ -48,7 +77,7 @@ export default function StudentProfile() {
           {/* Avatar */}
           <div className="relative inline-block mb-4">
             <div className="h-24 w-24 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground text-3xl font-display font-bold shadow-glow">
-              MS
+              {initials}
             </div>
             <button className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-card border border-border flex items-center justify-center shadow-md">
               <Edit2 className="h-4 w-4 text-foreground" />
@@ -56,12 +85,12 @@ export default function StudentProfile() {
           </div>
           
           <h1 className="text-2xl font-display font-bold text-foreground mb-1">
-            {profile.name}
+            {displayName}
           </h1>
           <p className="text-muted-foreground text-sm mb-3">
-            {profile.email}
+            {displayEmail}
           </p>
-          <Badge variant="active">{profile.plan}</Badge>
+          {student?.goal && <Badge variant="active">{student.goal}</Badge>}
         </motion.div>
       </div>
 
@@ -76,7 +105,7 @@ export default function StudentProfile() {
           <Card variant="stat">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-display font-bold text-foreground">
-                {profile.height}cm
+                {latestMeasurement?.height || student?.height || "--"}cm
               </p>
               <p className="text-xs text-muted-foreground">Altura</p>
             </CardContent>
@@ -84,40 +113,42 @@ export default function StudentProfile() {
           <Card variant="stat">
             <CardContent className="p-4 text-center">
               <p className="text-2xl font-display font-bold text-foreground">
-                {profile.weight}kg
+                {latestMeasurement?.weight || student?.weight || "--"}kg
               </p>
               <p className="text-xs text-muted-foreground">Peso Atual</p>
             </CardContent>
           </Card>
         </motion.div>
 
-        {/* Trainer Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6"
-        >
-          <Card variant="elevated">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <div className="h-14 w-14 rounded-full bg-gradient-accent flex items-center justify-center text-accent-foreground font-semibold">
-                  JP
+        {/* Trainer Info - Show if student has personal */}
+        {student && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mb-6"
+          >
+            <Card variant="elevated">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-full bg-gradient-accent flex items-center justify-center text-accent-foreground font-semibold">
+                    PT
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground mb-0.5">Meu Personal</p>
+                    <p className="font-semibold text-foreground">Personal Trainer</p>
+                    <p className="text-sm text-muted-foreground">
+                      Desde {new Date(student.created_at).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Contato
+                  </Button>
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground mb-0.5">Meu Personal</p>
-                  <p className="font-semibold text-foreground">{profile.trainer}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Desde {new Date(profile.memberSince).toLocaleDateString('pt-BR')}
-                  </p>
-                </div>
-                <Button variant="outline" size="sm">
-                  Contato
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {/* Contact Info */}
         <motion.div
@@ -134,27 +165,44 @@ export default function StudentProfile() {
                 </div>
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">Email</p>
-                  <p className="text-sm font-medium text-foreground">{profile.email}</p>
+                  <p className="text-sm font-medium text-foreground">{displayEmail}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-accent/10">
-                  <Phone className="h-4 w-4 text-accent" />
+              {student?.phone && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-accent/10">
+                    <Phone className="h-4 w-4 text-accent" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Telefone</p>
+                    <p className="text-sm font-medium text-foreground">{student.phone}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Telefone</p>
-                  <p className="text-sm font-medium text-foreground">{profile.phone}</p>
+              )}
+              {student?.goal && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-energy/10">
+                    <Target className="h-4 w-4 text-energy" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Objetivo</p>
+                    <p className="text-sm font-medium text-foreground">{student.goal}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-energy/10">
-                  <Target className="h-4 w-4 text-energy" />
+              )}
+              {student?.birth_date && (
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-warning/10">
+                    <Calendar className="h-4 w-4 text-warning" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-xs text-muted-foreground">Data de Nascimento</p>
+                    <p className="text-sm font-medium text-foreground">
+                      {new Date(student.birth_date).toLocaleDateString('pt-BR')}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-xs text-muted-foreground">Objetivo</p>
-                  <p className="text-sm font-medium text-foreground">{profile.goals}</p>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
@@ -193,12 +241,15 @@ export default function StudentProfile() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <Link to="/">
-            <Button variant="outline" className="w-full" size="lg">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair da Conta
-            </Button>
-          </Link>
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            size="lg"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4 mr-2" />
+            Sair da Conta
+          </Button>
         </motion.div>
       </div>
     </div>
