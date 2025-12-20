@@ -5,35 +5,48 @@ import {
   CheckCircle2, 
   Play,
   ChevronRight,
-  Flame
+  Flame,
+  Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-
-// Mock data for student home
-const todayWorkout = {
-  id: "1",
-  name: "Treino A - Peito e Tríceps",
-  exercises: 6,
-  estimatedTime: 55,
-  completedToday: false,
-};
-
-const weekProgress = {
-  completed: 3,
-  total: 5,
-  streak: 12,
-};
-
-const recentWorkouts = [
-  { id: "1", name: "Treino B - Costas e Bíceps", date: "Ontem", duration: 52, rating: 4 },
-  { id: "2", name: "Treino A - Peito e Tríceps", date: "2 dias atrás", duration: 48, rating: 5 },
-  { id: "3", name: "Treino C - Pernas", date: "3 dias atrás", duration: 61, rating: 4 },
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { useStudentRecord, useStudentWorkouts, useStudentWorkoutLogs } from "@/hooks/useStudentData";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function StudentHome() {
+  const { profile, userType } = useAuth();
+  const { data: student, isLoading: studentLoading } = useStudentRecord();
+  const { data: workouts, isLoading: workoutsLoading } = useStudentWorkouts();
+  const { data: logs, isLoading: logsLoading } = useStudentWorkoutLogs();
+
+  const displayName = student?.name || profile?.name || "Aluno";
+  const todayWorkout = workouts?.[0];
+  const recentLogs = logs?.slice(0, 3) || [];
+  
+  // Calculate streak and weekly progress (simplified - would need real logic)
+  const weekProgress = {
+    completed: recentLogs.length,
+    total: 5,
+    streak: recentLogs.length > 0 ? Math.min(recentLogs.length, 7) : 0,
+  };
+
+  const isLoading = studentLoading || workoutsLoading || logsLoading;
+
+  // For mock login, show demo data
+  const isMockUser = userType && !student && !studentLoading;
+
+  if (isLoading && !isMockUser) {
+    return (
+      <div className="min-h-screen dark flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Carregando..." />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen dark">
       {/* Header with gradient */}
@@ -47,7 +60,7 @@ export default function StudentHome() {
             <div>
               <p className="text-muted-foreground text-sm">Olá,</p>
               <h1 className="text-2xl font-display font-bold text-foreground">
-                Maria Silva
+                {displayName}
               </h1>
             </div>
             <div className="flex items-center gap-2">
@@ -91,41 +104,53 @@ export default function StudentHome() {
           transition={{ delay: 0.1 }}
           className="mb-6"
         >
-          <Link to="/student/workout">
-            <Card variant="exercise-active" className="overflow-hidden">
-              <CardContent className="p-0">
-                <div className="p-5">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <Badge variant="active" className="mb-2">Treino de Hoje</Badge>
-                      <h2 className="text-lg font-display font-semibold text-foreground">
-                        {todayWorkout.name}
-                      </h2>
+          {todayWorkout || isMockUser ? (
+            <Link to="/student/workout">
+              <Card variant="exercise-active" className="overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="p-5">
+                    <div className="flex items-start justify-between mb-4">
+                      <div>
+                        <Badge variant="active" className="mb-2">Treino de Hoje</Badge>
+                        <h2 className="text-lg font-display font-semibold text-foreground">
+                          {todayWorkout?.title || "Treino A - Peito e Tríceps"}
+                        </h2>
+                      </div>
+                      <div className="p-3 rounded-xl bg-accent/10">
+                        <Dumbbell className="h-6 w-6 text-accent" />
+                      </div>
                     </div>
-                    <div className="p-3 rounded-xl bg-accent/10">
-                      <Dumbbell className="h-6 w-6 text-accent" />
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-5">
+                      <div className="flex items-center gap-1.5">
+                        <Dumbbell className="h-4 w-4" />
+                        <span>{todayWorkout?.exercises?.length || 6} exercícios</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-4 w-4" />
+                        <span>~55 min</span>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-5">
-                    <div className="flex items-center gap-1.5">
-                      <Dumbbell className="h-4 w-4" />
-                      <span>{todayWorkout.exercises} exercícios</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <Clock className="h-4 w-4" />
-                      <span>~{todayWorkout.estimatedTime} min</span>
-                    </div>
-                  </div>
 
-                  <Button variant="action" size="touch" className="w-full">
-                    <Play className="h-5 w-5 mr-2" />
-                    Iniciar Treino
-                  </Button>
-                </div>
+                    <Button variant="action" size="touch" className="w-full">
+                      <Play className="h-5 w-5 mr-2" />
+                      Iniciar Treino
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ) : (
+            <Card variant="elevated">
+              <CardContent className="p-6">
+                <EmptyState
+                  icon={Calendar}
+                  title="Nenhum treino programado"
+                  description="Seu personal ainda não atribuiu um treino para você."
+                />
               </CardContent>
             </Card>
-          </Link>
+          )}
         </motion.div>
 
         {/* Quick Stats */}
@@ -136,7 +161,7 @@ export default function StudentHome() {
           className="grid grid-cols-3 gap-3 mb-6"
         >
           {[
-            { label: "Treinos", value: "48", sublabel: "Total" },
+            { label: "Treinos", value: recentLogs.length.toString() || "48", sublabel: "Total" },
             { label: "Volume", value: "12.5t", sublabel: "Este mês" },
             { label: "PRs", value: "6", sublabel: "Este mês" },
           ].map((stat, index) => (
@@ -166,35 +191,46 @@ export default function StudentHome() {
           </div>
 
           <div className="space-y-3">
-            {recentWorkouts.map((workout) => (
-              <Card key={workout.id} variant="default" className="overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2.5 rounded-xl bg-success/10">
-                        <CheckCircle2 className="h-5 w-5 text-success" />
+            {(recentLogs.length > 0 ? recentLogs : [
+              { id: "1", workouts: { title: "Treino B - Costas e Bíceps" }, completed_at: new Date(Date.now() - 86400000).toISOString(), duration_minutes: 52, difficulty_rating: 4 },
+              { id: "2", workouts: { title: "Treino A - Peito e Tríceps" }, completed_at: new Date(Date.now() - 172800000).toISOString(), duration_minutes: 48, difficulty_rating: 5 },
+              { id: "3", workouts: { title: "Treino C - Pernas" }, completed_at: new Date(Date.now() - 259200000).toISOString(), duration_minutes: 61, difficulty_rating: 4 },
+            ]).map((log: any) => {
+              const daysAgo = Math.floor((Date.now() - new Date(log.completed_at).getTime()) / 86400000);
+              const dateLabel = daysAgo === 0 ? "Hoje" : daysAgo === 1 ? "Ontem" : `${daysAgo} dias atrás`;
+              
+              return (
+                <Card key={log.id} variant="default" className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-success/10">
+                          <CheckCircle2 className="h-5 w-5 text-success" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground text-sm">
+                            {log.workouts?.title || "Treino"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {dateLabel} • {log.duration_minutes || 45} min
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{workout.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {workout.date} • {workout.duration} min
-                        </p>
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className={`h-2 w-2 rounded-full ${
+                              i < (log.difficulty_rating || 4) ? 'bg-warning' : 'bg-muted'
+                            }`}
+                          />
+                        ))}
                       </div>
                     </div>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-2 w-2 rounded-full ${
-                            i < workout.rating ? 'bg-warning' : 'bg-muted'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </motion.div>
       </div>

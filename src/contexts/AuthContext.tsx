@@ -1,13 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 
 type UserType = 'personal' | 'student' | null;
+
+interface Profile {
+  id: string;
+  name: string;
+  user_type: string;
+}
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  profile: Profile | null;
   userType: UserType;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
@@ -21,18 +27,24 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [userType, setUserType] = useState<UserType>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserType = useCallback(async (userId: string) => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('user_type')
-      .eq('id', userId)
-      .single();
-    
-    if (data) {
-      setUserType(data.user_type as UserType);
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      
+      if (data && !error) {
+        setProfile(data);
+        setUserType(data.user_type as UserType);
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   }, []);
 
@@ -46,9 +58,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (session?.user) {
           // Defer Supabase calls with setTimeout
           setTimeout(() => {
-            fetchUserType(session.user.id);
+            fetchProfile(session.user.id);
           }, 0);
         } else {
+          setProfile(null);
           setUserType(null);
         }
         
@@ -62,14 +75,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchUserType(session.user.id);
+        fetchProfile(session.user.id);
       }
       
       setLoading(false);
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchUserType]);
+  }, [fetchProfile]);
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -87,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -99,45 +112,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       });
 
-      if (error) return { error };
-
-      // Create profile after successful signup
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            name,
-            user_type: type,
-          });
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-        }
-      }
-
-      return { error: null };
+      return { error };
     } catch (error) {
       return { error: error as Error };
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setSession(null);
-    setUserType(null);
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.error('Error signing out:', error);
+    } finally {
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setUserType(null);
+    }
   };
 
   // Mock login for development/testing
   const mockLogin = (type: 'personal' | 'student') => {
+    const mockProfile: Profile = {
+      id: 'mock-user-id',
+      name: type === 'personal' ? 'Carlos Trainer' : 'Maria Aluna',
+      user_type: type,
+    };
+    
+    setProfile(mockProfile);
     setUserType(type);
-    // Create a mock user for development
     setUser({
       id: 'mock-user-id',
       email: type === 'personal' ? 'personal@fitcoach.com' : 'aluno@fitcoach.com',
       app_metadata: {},
-      user_metadata: { name: type === 'personal' ? 'Carlos Trainer' : 'Maria Aluna' },
+      user_metadata: { name: mockProfile.name },
       aud: 'authenticated',
       created_at: new Date().toISOString(),
     } as User);
@@ -149,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       value={{
         user,
         session,
+        profile,
         userType,
         loading,
         signIn,
