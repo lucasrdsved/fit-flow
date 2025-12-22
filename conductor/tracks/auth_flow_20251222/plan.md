@@ -1,7 +1,7 @@
 # Track Plan: User Authentication Flow
 
 ## Phase 1: Setup & Configuration
-- [ ] Task: Configure Supabase Project & Client
+- [x] Task: Configure Supabase Project & Client ead591e
     - Initialize Supabase client in `src/integrations/supabase/client.ts`.
     - Ensure environment variables are set (`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`).
     - **Verification:** Log Supabase client instance to console.
