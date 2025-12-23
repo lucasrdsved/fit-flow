@@ -31,11 +31,11 @@
   - Connect `SignUpForm` to Supabase `signUp` API.
   - Handle success and error states (toast notifications).
   - **Test:** Mock Supabase call and verify success/error handling.
-- [~] Task: Implement Login Logic
+- [x] Task: Implement Login Logic e6254bd
   - Connect `LoginForm` to Supabase `signInWithPassword` API.
   - Handle success and error states.
   - **Test:** Mock Supabase call and verify success/error handling.
-- [ ] Task: Implement Logout Logic
+- [~] Task: Implement Logout Logic
   - Create a logout utility or hook.
   - **Test:** Mock Supabase call.
 - [ ] Task: Conductor - User Manual Verification 'Authentication Logic Integration' (Protocol in workflow.md)
