@@ -4,6 +4,6 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-## [ ] Track: Create user authentication flow for user sign in.
+## [x] Track: Create user authentication flow for user sign in.
 
 _Link: [./conductor/tracks/auth_flow_20251222/](./conductor/tracks/auth_flow_20251222/)_
