@@ -25,7 +25,7 @@
   - **Test:** Visual check (screenshot/snapshot).
 - [x] Task: Conductor - User Manual Verification 'Authentication UI Components' (Protocol in workflow.md) f240e74
 
-## Phase 3: Authentication Logic Integration
+## Phase 3: Authentication Logic Integration [checkpoint: c04e874]
 
 - [x] Task: Implement Sign Up Logic d0fa39d
   - Connect `SignUpForm` to Supabase `signUp` API.
@@ -38,11 +38,11 @@
 - [x] Task: Implement Logout Logic 859c7cf
   - Create a logout utility or hook.
   - **Test:** Mock Supabase call.
-- [~] Task: Conductor - User Manual Verification 'Authentication Logic Integration' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Authentication Logic Integration' (Protocol in workflow.md) c04e874
 
 ## Phase 4: Routing & Protection
 
-- [ ] Task: Update Protected Route
+- [~] Task: Update Protected Route
   - Enhance `src/components/auth/ProtectedRoute.tsx` to check Supabase session.
   - Implement role-based redirect logic (Trainer vs Student).
 - [ ] Task: Create Auth Pages
