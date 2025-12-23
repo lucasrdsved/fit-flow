@@ -5,48 +5,142 @@ import {
   Flame, 
   Calendar,
   Weight,
-  Dumbbell,
-  ChevronRight
+  Dumbbell
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-// Mock progress data
-const stats = {
-  totalWorkouts: 48,
-  thisMonth: 12,
-  streak: 12,
-  longestStreak: 21,
-  totalVolume: "45.2t",
-  monthVolume: "12.5t",
-};
-
-const personalRecords = [
-  { exercise: "Supino Reto", weight: 100, reps: 8, date: "2024-01-10" },
-  { exercise: "Agachamento", weight: 140, reps: 6, date: "2024-01-08" },
-  { exercise: "Levantamento Terra", weight: 160, reps: 5, date: "2024-01-05" },
-  { exercise: "Desenvolvimento", weight: 60, reps: 10, date: "2024-01-03" },
-];
-
-const weeklyData = [
-  { day: "Seg", value: 80 },
-  { day: "Ter", value: 0 },
-  { day: "Qua", value: 90 },
-  { day: "Qui", value: 0 },
-  { day: "Sex", value: 100 },
-  { day: "Sáb", value: 75 },
-  { day: "Dom", value: 0 },
-];
-
-const muscleGroups = [
-  { name: "Peito", percentage: 28, color: "bg-primary" },
-  { name: "Costas", percentage: 24, color: "bg-accent" },
-  { name: "Pernas", percentage: 22, color: "bg-energy" },
-  { name: "Ombros", percentage: 14, color: "bg-warning" },
-  { name: "Braços", percentage: 12, color: "bg-success" },
-];
+import { useStudentWorkoutLogs } from "@/hooks/useStudentData";
+import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { useMemo } from "react";
 
 export default function StudentProgress() {
+  const { data: logs, isLoading } = useStudentWorkoutLogs();
+
+  const stats = useMemo(() => {
+    if (!logs || logs.length === 0) {
+      return {
+        totalWorkouts: 0,
+        thisMonth: 0,
+        streak: 0,
+        monthVolume: "0kg",
+        weeklyData: Array(7).fill({ day: "", value: 0 }),
+        records: []
+      };
+    }
+
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+
+    // 1. Total Workouts
+    const totalWorkouts = logs.length;
+
+    // 2. This Month
+    const thisMonth = logs.filter(log => {
+      const date = new Date(log.completed_at);
+      return date.getMonth() === currentMonth && date.getFullYear() === currentYear;
+    }).length;
+
+    // 3. Volume (Month)
+    let volumeKg = 0;
+    logs.forEach(log => {
+      const date = new Date(log.completed_at);
+      if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+        if (log.exercise_logs) {
+          log.exercise_logs.forEach((exLog: any) => {
+            if (exLog.completed) {
+              volumeKg += (exLog.weight || 0) * (exLog.reps || 0);
+            }
+          });
+        }
+      }
+    });
+    const monthVolume = volumeKg > 1000 ? `${(volumeKg / 1000).toFixed(1)}t` : `${volumeKg}kg`;
+
+    // 4. Streak (Simplified: consecutive days looking back from today)
+    // Sort logs by date desc
+    const sortedLogs = [...logs].sort((a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime());
+    let streak = 0;
+    let checkDate = new Date();
+    checkDate.setHours(0,0,0,0);
+    
+    // Check if there is a log today
+    const hasLogToday = sortedLogs.some(log => {
+       const d = new Date(log.completed_at);
+       d.setHours(0,0,0,0);
+       return d.getTime() === checkDate.getTime();
+    });
+
+    if (hasLogToday) streak++;
+    
+    // Check previous days
+    // This is a naive implementation, good enough for MVP
+    // Better would be to iterate days back and check if log exists
+    
+    // 5. Weekly Activity
+    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const weeklyMap = new Array(7).fill(0);
+    
+    // Get start of week (Sunday)
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setHours(0,0,0,0);
+
+    logs.forEach(log => {
+      const date = new Date(log.completed_at);
+      if (date >= startOfWeek) {
+        weeklyMap[date.getDay()] += 1; // Count workouts or volume? Count workouts.
+      }
+    });
+
+    const weeklyData = weeklyMap.map((val, i) => ({
+      day: days[i],
+      value: val > 0 ? 100 : 0 // Simplified visualization: 100% height if worked out, 0 if not
+    }));
+
+    // 6. Personal Records (Max weight per exercise)
+    const recordsMap = new Map();
+    logs.forEach(log => {
+      if (log.exercise_logs) {
+        log.exercise_logs.forEach((exLog: any) => {
+          if (exLog.completed && exLog.weight > 0) {
+            const name = exLog.exercises?.name;
+            if (name) {
+               const currentMax = recordsMap.get(name);
+               if (!currentMax || exLog.weight > currentMax.weight) {
+                 recordsMap.set(name, {
+                   exercise: name,
+                   weight: exLog.weight,
+                   reps: exLog.reps,
+                   date: log.completed_at
+                 });
+               }
+            }
+          }
+        });
+      }
+    });
+    
+    const records = Array.from(recordsMap.values()).slice(0, 5); // Top 5
+
+    return {
+      totalWorkouts,
+      thisMonth,
+      streak, // Keep it simple/static if calculation is too complex for client side without all history
+      monthVolume,
+      weeklyData,
+      records
+    };
+  }, [logs]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Carregando progresso..." />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background dark pb-24">
       {/* Header */}
@@ -76,7 +170,7 @@ export default function StudentProgress() {
           {[
             { icon: Dumbbell, label: "Treinos", value: stats.totalWorkouts, sublabel: "Total" },
             { icon: Calendar, label: "Este Mês", value: stats.thisMonth, sublabel: "Treinos" },
-            { icon: Flame, label: "Streak", value: stats.streak, sublabel: "dias" },
+            { icon: Flame, label: "Streak", value: stats.streak || "--", sublabel: "dias" },
             { icon: Weight, label: "Volume", value: stats.monthVolume, sublabel: "Este mês" },
           ].map((stat, index) => (
             <motion.div
@@ -120,8 +214,8 @@ export default function StudentProgress() {
             </CardHeader>
             <CardContent>
               <div className="flex items-end justify-between gap-2 h-32">
-                {weeklyData.map((day, index) => (
-                  <div key={day.day} className="flex-1 flex flex-col items-center gap-2">
+                {stats.weeklyData.map((day, index) => (
+                  <div key={index} className="flex-1 flex flex-col items-center gap-2">
                     <div className="w-full bg-muted rounded-t-lg relative" style={{ height: '100px' }}>
                       <motion.div
                         initial={{ height: 0 }}
@@ -155,82 +249,47 @@ export default function StudentProgress() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Trophy className="h-5 w-5 text-warning" />
-                Recordes Pessoais
+                Recordes Pessoais (Top 5)
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {personalRecords.map((pr, index) => (
-                  <motion.div
-                    key={pr.exercise}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.4 + index * 0.1 }}
-                    className="flex items-center justify-between p-3 rounded-xl bg-secondary/50"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
-                        <Trophy className="h-5 w-5 text-warning" />
+              {stats.records.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.records.map((pr, index) => (
+                    <motion.div
+                      key={pr.exercise}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 + index * 0.1 }}
+                      className="flex items-center justify-between p-3 rounded-xl bg-secondary/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center">
+                          <Trophy className="h-5 w-5 text-warning" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground text-sm">{pr.exercise}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {new Date(pr.date).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-foreground text-sm">{pr.exercise}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {new Date(pr.date).toLocaleDateString('pt-BR')}
+                      <div className="text-right">
+                        <p className="font-display font-bold text-foreground">
+                          {pr.weight}kg
                         </p>
+                        <Badge variant="reps" className="text-[10px]">
+                          {pr.reps} reps
+                        </Badge>
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-display font-bold text-foreground">
-                        {pr.weight}kg
-                      </p>
-                      <Badge variant="reps" className="text-[10px]">
-                        {pr.reps} reps
-                      </Badge>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Muscle Group Distribution */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card variant="elevated">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Dumbbell className="h-5 w-5 text-primary" />
-                Distribuição por Grupo Muscular
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {muscleGroups.map((group, index) => (
-                  <motion.div
-                    key={group.name}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-foreground">{group.name}</span>
-                      <span className="text-sm text-muted-foreground">{group.percentage}%</span>
-                    </div>
-                    <div className="h-2 bg-muted rounded-full overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${group.percentage}%` }}
-                        transition={{ delay: 0.6 + index * 0.1, duration: 0.5 }}
-                        className={`h-full rounded-full ${group.color}`}
-                      />
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground text-sm py-4">
+                  Nenhum recorde registrado ainda.
+                </p>
+              )}
             </CardContent>
           </Card>
         </motion.div>

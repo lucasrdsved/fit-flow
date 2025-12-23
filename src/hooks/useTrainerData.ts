@@ -48,6 +48,31 @@ export function useTrainerWorkouts() {
   });
 }
 
+export function useTrainerTemplates() {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['trainer-templates', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+
+      const { data, error } = await supabase
+        .from('workouts')
+        .select(`
+          *,
+          exercises (*)
+        `)
+        .eq('personal_id', user.id)
+        .is('student_id', null)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+  });
+}
+
 export function useCreateStudent() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -184,6 +209,89 @@ export function useCreateWorkout() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trainer-workouts'] });
+    },
+  });
+}
+
+export function useTrainerStudent(studentId: string) {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['trainer-student', studentId],
+    queryFn: async () => {
+      if (!user?.id) return null;
+
+      const { data, error } = await supabase
+        .from('students')
+        .select('*')
+        .eq('id', studentId)
+        .eq('personal_id', user.id)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id && !!studentId,
+  });
+}
+
+export function useAssignWorkout() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ studentId, templateId }: { studentId: string; templateId: string }) => {
+      if (!user?.id) throw new Error('Not authenticated');
+
+      // 1. Fetch template and exercises
+      const { data: template, error: templateError } = await supabase
+        .from('workouts')
+        .select(`*, exercises(*)`)
+        .eq('id', templateId)
+        .single();
+
+      if (templateError || !template) throw new Error('Template not found');
+
+      // 2. Create new workout for student
+      const { data: newWorkout, error: createError } = await supabase
+        .from('workouts')
+        .insert({
+          title: template.title,
+          description: template.description,
+          workout_type: template.workout_type,
+          personal_id: user.id,
+          student_id: studentId,
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      // 3. Copy exercises
+      if (template.exercises && template.exercises.length > 0) {
+        const exercisesToInsert = template.exercises.map(ex => ({
+          workout_id: newWorkout.id,
+          name: ex.name,
+          sets: ex.sets,
+          reps: ex.reps,
+          rest_time: ex.rest_time,
+          notes: ex.notes,
+          video_url: ex.video_url,
+          order_index: ex.order_index,
+        }));
+
+        const { error: exercisesError } = await supabase
+          .from('exercises')
+          .insert(exercisesToInsert);
+
+        if (exercisesError) throw exercisesError;
+      }
+
+      return newWorkout;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['trainer-workouts'] });
+      // Invalidate student specific queries if we had them scoped by student
     },
   });
 }

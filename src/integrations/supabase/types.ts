@@ -61,6 +61,54 @@ export type Database = {
           },
         ]
       }
+      exercise_logs: {
+        Row: {
+          id: string
+          workout_log_id: string
+          exercise_id: string
+          set_number: number
+          reps: number
+          weight: number
+          completed: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          workout_log_id: string
+          exercise_id: string
+          set_number: number
+          reps: number
+          weight: number
+          completed?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          workout_log_id?: string
+          exercise_id?: string
+          set_number?: number
+          reps?: number
+          weight?: number
+          completed?: boolean
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_logs_workout_log_id_fkey"
+            columns: ["workout_log_id"]
+            isOneToOne: false
+            referencedRelation: "workout_logs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exercise_logs_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       measurements: {
         Row: {
           arm_left: number | null

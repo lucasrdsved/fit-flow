@@ -11,6 +11,9 @@ import { TrainerLayout } from "./components/layout/TrainerLayout";
 import { StudentLayout } from "./components/layout/StudentLayout";
 import TrainerDashboard from "./pages/trainer/Dashboard";
 import TrainerStudents from "./pages/trainer/Students";
+import TrainerNewStudent from "./pages/trainer/NewStudent";
+import TrainerPlans from "./pages/trainer/Plans";
+import TrainerPlanEditor from "./pages/trainer/PlanEditor";
 import StudentHome from "./pages/student/Home";
 import StudentWorkout from "./pages/student/Workout";
 import StudentProgress from "./pages/student/Progress";
@@ -40,7 +43,11 @@ const App = () => (
               >
                 <Route index element={<TrainerDashboard />} />
                 <Route path="students" element={<TrainerStudents />} />
-                <Route path="plans" element={<TrainerDashboard />} />
+                <Route path="students/:id" element={<TrainerStudentDetails />} />
+                <Route path="students/new" element={<TrainerNewStudent />} />
+                <Route path="plans" element={<TrainerPlans />} />
+                <Route path="plans/new" element={<TrainerPlanEditor />} />
+                <Route path="plans/:id" element={<TrainerPlanEditor />} />
                 <Route path="calendar" element={<TrainerDashboard />} />
                 <Route path="exercises" element={<TrainerDashboard />} />
                 <Route path="settings" element={<TrainerDashboard />} />

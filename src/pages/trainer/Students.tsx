@@ -81,7 +81,17 @@ export default function TrainerStudents() {
   const filteredStudents = displayStudents.filter((student) => {
     const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.email.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    
+    // Logic for status filtering
+    // Since we don't have a status field in the DB yet, we assume all students are active.
+    // 'active' -> show all (matchesSearch)
+    // 'inactive' -> show none
+    // 'all' -> show all
+    const matchesFilter = filter === "all" ? true :
+                         filter === "active" ? true :
+                         false; // filter === "inactive"
+
+    return matchesSearch && matchesFilter;
   });
 
   if (isLoading) {
