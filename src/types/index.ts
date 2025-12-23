@@ -1,13 +1,17 @@
 // User roles
+/** Represents the role of a user in the system. */
 export type UserRole = 'trainer' | 'student';
 
 // Session status
+/** Represents the current status of a scheduled workout session. */
 export type SessionStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
 // Notification types
+/** Represents the category of a notification. */
 export type NotificationType = 'reminder' | 'feedback' | 'plan_update' | 'schedule_change';
 
 // Muscle groups
+/** Represents the primary muscle group targeted by an exercise. */
 export type MuscleGroup = 
   | 'chest' 
   | 'back' 
@@ -21,9 +25,13 @@ export type MuscleGroup =
   | 'full_body';
 
 // Exercise type
+/** Represents the category of an exercise. */
 export type ExerciseType = 'strength' | 'cardio' | 'flexibility' | 'compound' | 'isolation';
 
 // User base interface
+/**
+ * Base interface for all users in the system.
+ */
 export interface User {
   id: string;
   email: string;
@@ -35,6 +43,10 @@ export interface User {
 }
 
 // Trainer specific data
+/**
+ * Interface representing a Personal Trainer.
+ * Extends the base User interface.
+ */
 export interface Trainer extends User {
   role: 'trainer';
   bio?: string;
@@ -43,6 +55,10 @@ export interface Trainer extends User {
 }
 
 // Student specific data
+/**
+ * Interface representing a Student (client).
+ * Extends the base User interface.
+ */
 export interface Student extends User {
   role: 'student';
   trainer_id: string;
@@ -56,6 +72,9 @@ export interface Student extends User {
 }
 
 // Exercise catalog
+/**
+ * Represents an exercise definition in the catalog.
+ */
 export interface Exercise {
   id: string;
   name: string;
@@ -71,6 +90,9 @@ export interface Exercise {
 }
 
 // Workout plan
+/**
+ * Represents a workout plan designed by a trainer.
+ */
 export interface WorkoutPlan {
   id: string;
   trainer_id: string;
@@ -84,6 +106,10 @@ export interface WorkoutPlan {
 }
 
 // Plan exercise (association)
+/**
+ * Represents an exercise included in a specific workout plan.
+ * Contains the prescription details (sets, reps, etc.).
+ */
 export interface PlanExercise {
   id: string;
   plan_id: string;
@@ -100,6 +126,9 @@ export interface PlanExercise {
 }
 
 // Scheduled session
+/**
+ * Represents a scheduled workout session for a student.
+ */
 export interface Session {
   id: string;
   student_id: string;
@@ -115,6 +144,9 @@ export interface Session {
 }
 
 // Workout log (header)
+/**
+ * Represents a record of a completed or in-progress workout.
+ */
 export interface WorkoutLog {
   id: string;
   session_id?: string;
@@ -133,6 +165,9 @@ export interface WorkoutLog {
 }
 
 // Set log (individual sets)
+/**
+ * Represents the log data for a single set of an exercise.
+ */
 export interface SetLog {
   id: string;
   workout_log_id: string;
@@ -150,6 +185,9 @@ export interface SetLog {
 }
 
 // Notification
+/**
+ * Represents a system notification for a user.
+ */
 export interface Notification {
   id: string;
   user_id: string;
@@ -163,6 +201,9 @@ export interface Notification {
 }
 
 // Device (push tokens)
+/**
+ * Represents a user's device registered for push notifications.
+ */
 export interface Device {
   id: string;
   user_id: string;
@@ -174,6 +215,9 @@ export interface Device {
 }
 
 // Stats/Metrics types
+/**
+ * Represents aggregate statistics for a student's performance.
+ */
 export interface StudentStats {
   total_workouts: number;
   workouts_this_week: number;
@@ -185,6 +229,9 @@ export interface StudentStats {
   personal_records: PersonalRecord[];
 }
 
+/**
+ * Represents a personal record achieved by a student.
+ */
 export interface PersonalRecord {
   exercise_id: string;
   exercise_name: string;
@@ -193,6 +240,9 @@ export interface PersonalRecord {
   achieved_at: string;
 }
 
+/**
+ * Represents summary statistics for the trainer dashboard.
+ */
 export interface TrainerDashboardStats {
   total_students: number;
   active_students: number;

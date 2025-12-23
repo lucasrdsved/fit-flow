@@ -1,6 +1,14 @@
 import { useToast } from "@/hooks/use-toast";
 import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from "@/components/ui/toast";
 
+/**
+ * The Toaster component responsible for rendering active toasts.
+ *
+ * It consumes the `useToast` hook to get the list of active toasts and renders them
+ * using the `Toast` components. It also places the `ToastViewport` for positioning.
+ *
+ * @returns {JSX.Element} The toaster component.
+ */
 export function Toaster() {
   const { toasts } = useToast();
 

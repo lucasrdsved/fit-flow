@@ -67,6 +67,16 @@ const mockStudents = [
   },
 ];
 
+/**
+ * The trainer's student management page.
+ *
+ * This component displays a list of the trainer's students, with options to search and filter.
+ * It allows the trainer to view student details, create new workout plans, or add new students.
+ *
+ * It uses the `useTrainerStudents` hook to fetch data and `AuthContext` to check for demo mode.
+ *
+ * @returns {JSX.Element} The trainer students page.
+ */
 export default function TrainerStudents() {
   const navigate = useNavigate();
   const { userType } = useAuth();

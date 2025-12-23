@@ -27,6 +27,15 @@ const menuItems = [
   { icon: Settings, label: "Configurações", href: "/student/settings" },
 ];
 
+/**
+ * The student profile page.
+ *
+ * This component displays the student's personal information, such as name, email, height, weight,
+ * and contact details. It also shows their assigned personal trainer and provides options to navigate
+ * to other settings or logout.
+ *
+ * @returns {JSX.Element} The student profile page.
+ */
 export default function StudentProfile() {
   const navigate = useNavigate();
   const { toast } = useToast();

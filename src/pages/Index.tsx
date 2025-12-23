@@ -9,6 +9,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Dumbbell, Users, Eye, EyeOff, Loader2, Zap } from "lucide-react";
 
+/**
+ * The landing page component, handling user login and registration.
+ *
+ * This component provides a form for users to sign in or sign up.
+ * It also includes "quick login" buttons for demonstration purposes to easily access
+ * the trainer or student dashboards.
+ *
+ * It uses the `AuthContext` to manage authentication state and `useToast` for user feedback.
+ *
+ * @returns {JSX.Element} The landing page.
+ */
 export default function Index() {
   const navigate = useNavigate();
   const { signIn, signUp, mockLogin, user, userType } = useAuth();

@@ -4,26 +4,72 @@ import { supabase } from '@/integrations/supabase/client';
 
 type UserType = 'personal' | 'student' | null;
 
+/**
+ * Represents the user's profile information.
+ */
 interface Profile {
+  /** Unique identifier for the user. */
   id: string;
+  /** The user's full name. */
   name: string;
+  /** The type of user: 'personal' (trainer) or 'student'. */
   user_type: string;
 }
 
+/**
+ * Defines the shape of the authentication context.
+ */
 interface AuthContextType {
+  /** The current authenticated user object from Supabase, or null if not authenticated. */
   user: User | null;
+  /** The current authentication session, or null if no session exists. */
   session: Session | null;
+  /** The user's profile data, including name and user type. */
   profile: Profile | null;
+  /** The type of the current user ('personal' or 'student'). */
   userType: UserType;
+  /** Indicates whether the authentication state is currently being loaded. */
   loading: boolean;
+  /**
+   * Signs in a user with email and password.
+   * @param email - The user's email address.
+   * @param password - The user's password.
+   * @returns A promise resolving to an object containing an error if the sign-in failed.
+   */
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  /**
+   * Signs up a new user.
+   * @param email - The user's email address.
+   * @param password - The user's password.
+   * @param name - The user's full name.
+   * @param userType - The role of the user ('personal' or 'student').
+   * @returns A promise resolving to an object containing an error if the sign-up failed.
+   */
   signUp: (email: string, password: string, name: string, userType: 'personal' | 'student') => Promise<{ error: Error | null }>;
+  /**
+   * Signs out the current user.
+   * @returns A promise that resolves when the sign-out is complete.
+   */
   signOut: () => Promise<void>;
+  /**
+   * Simulates a login for development purposes without hitting the backend.
+   * @param type - The user type to simulate ('personal' or 'student').
+   */
   mockLogin: (type: 'personal' | 'student') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * Provides authentication state and methods to the application.
+ *
+ * This provider manages the user's session, profile, and authentication actions (sign in, sign up, sign out).
+ * It uses Supabase for backend authentication and state management.
+ *
+ * @param props - The component props.
+ * @param props.children - The child components that will have access to the auth context.
+ * @returns {JSX.Element} The AuthProvider component.
+ */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -171,6 +217,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+/**
+ * Custom hook to access the authentication context.
+ *
+ * @returns {AuthContextType} The authentication context value.
+ * @throws {Error} If used outside of an AuthProvider.
+ */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

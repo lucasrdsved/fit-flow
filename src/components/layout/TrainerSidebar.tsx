@@ -22,10 +22,23 @@ const trainerNavItems = [
 ];
 
 interface TrainerSidebarProps {
+  /** Indicates whether the sidebar is collapsed. */
   collapsed?: boolean;
+  /** Callback function to toggle the sidebar state. */
   onToggle?: () => void;
 }
 
+/**
+ * The sidebar navigation for the trainer application.
+ *
+ * It displays the application logo, navigation links, and a user profile section.
+ * It supports a collapsed state for better space utilization on smaller screens (or by user choice).
+ *
+ * @param {TrainerSidebarProps} props - The component props.
+ * @param {boolean} [props.collapsed=false] - Whether the sidebar is collapsed.
+ * @param {() => void} [props.onToggle] - Function to call when the collapse toggle button is clicked.
+ * @returns {JSX.Element} The trainer sidebar component.
+ */
 export function TrainerSidebar({ collapsed = false, onToggle }: TrainerSidebarProps) {
   const location = useLocation();
 

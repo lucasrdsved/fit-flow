@@ -4,8 +4,16 @@ import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * The root component for the Accordion.
+ * Wraps all accordion items.
+ */
 const Accordion = AccordionPrimitive.Root;
 
+/**
+ * An individual item within the Accordion.
+ * Contains the header (Trigger) and the content.
+ */
 const AccordionItem = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Item>
@@ -14,6 +22,10 @@ const AccordionItem = React.forwardRef<
 ));
 AccordionItem.displayName = "AccordionItem";
 
+/**
+ * The header of an AccordionItem that toggles the content visibility.
+ * Displays a chevron icon that rotates when expanded.
+ */
 const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
@@ -34,6 +46,10 @@ const AccordionTrigger = React.forwardRef<
 ));
 AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName;
 
+/**
+ * The content of an AccordionItem.
+ * Shown when the item is expanded, hidden when collapsed.
+ */
 const AccordionContent = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Content>

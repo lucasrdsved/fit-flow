@@ -17,6 +17,17 @@ import { useStudentRecord, useStudentWorkouts, useStudentWorkoutLogs } from "@/h
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { EmptyState } from "@/components/ui/EmptyState";
 
+/**
+ * The home page for the student application.
+ *
+ * This component displays an overview of the student's progress, the next scheduled workout,
+ * and a list of recently completed workouts.
+ *
+ * It uses data hooks (`useStudentRecord`, `useStudentWorkouts`, `useStudentWorkoutLogs`) to fetch
+ * user data and displays loading states or empty states as appropriate.
+ *
+ * @returns {JSX.Element} The student home page.
+ */
 export default function StudentHome() {
   const { profile, userType } = useAuth();
   const { data: student, isLoading: studentLoading } = useStudentRecord();

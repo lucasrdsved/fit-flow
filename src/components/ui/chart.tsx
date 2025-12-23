@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const;
 
+/**
+ * Configuration type for chart data keys, labels, icons, and colors.
+ */
 export type ChartConfig = {
   [k in string]: {
     label?: React.ReactNode;
@@ -19,6 +22,10 @@ type ChartContextProps = {
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
+/**
+ * Hook to access the chart configuration context.
+ * @returns {ChartContextProps} The chart context.
+ */
 function useChart() {
   const context = React.useContext(ChartContext);
 
@@ -29,6 +36,17 @@ function useChart() {
   return context;
 }
 
+/**
+ * A container component for Recharts charts.
+ *
+ * It manages the chart configuration, applies theming variables via CSS custom properties,
+ * and provides a responsive wrapper for the chart.
+ *
+ * @param {object} props - The component props.
+ * @param {ChartConfig} props.config - The chart configuration.
+ * @param {React.ReactNode} props.children - The Recharts component(s) to render.
+ * @returns {JSX.Element} The chart container.
+ */
 const ChartContainer = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
@@ -58,6 +76,9 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+/**
+ * Generates styles for the chart based on the configuration and current theme.
+ */
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
@@ -89,6 +110,11 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
 
+/**
+ * A custom tooltip component for Recharts charts.
+ *
+ * It renders formatted tooltip content based on the chart configuration.
+ */
 const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
@@ -227,6 +253,11 @@ ChartTooltipContent.displayName = "ChartTooltip";
 
 const ChartLegend = RechartsPrimitive.Legend;
 
+/**
+ * A custom legend component for Recharts charts.
+ *
+ * Displays chart series names and indicators based on the configuration.
+ */
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> &

@@ -5,8 +5,19 @@ import { DayPicker } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
+/**
+ * Props for the Calendar component, inheriting from `react-day-picker`.
+ */
 export type CalendarProps = React.ComponentProps<typeof DayPicker>;
 
+/**
+ * A calendar component built on top of `react-day-picker`.
+ *
+ * It provides a stylized interface for selecting dates, navigating months, and highlighting specific days (like today or selected range).
+ *
+ * @param {CalendarProps} props - The component props.
+ * @returns {JSX.Element} The calendar component.
+ */
 function Calendar({ className, classNames, showOutsideDays = true, ...props }: CalendarProps) {
   return (
     <DayPicker

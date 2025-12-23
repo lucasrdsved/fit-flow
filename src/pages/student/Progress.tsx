@@ -46,6 +46,16 @@ const muscleGroups = [
   { name: "Braços", percentage: 12, color: "bg-success" },
 ];
 
+/**
+ * The student progress page.
+ *
+ * This component visualizes the student's workout statistics, including total workouts,
+ * weekly activity, personal records, and muscle group distribution.
+ *
+ * Note: Currently uses mock data for visualization.
+ *
+ * @returns {JSX.Element} The student progress page.
+ */
 export default function StudentProgress() {
   return (
     <div className="min-h-screen bg-background dark pb-24">

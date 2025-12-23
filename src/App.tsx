@@ -18,6 +18,19 @@ import StudentProfile from "./pages/student/Profile";
 
 const queryClient = new QueryClient();
 
+/**
+ * The root component of the application.
+ *
+ * It sets up the following global providers:
+ * - `QueryClientProvider`: For managing server state with TanStack Query.
+ * - `TooltipProvider`: For managing tooltip state.
+ * - `BrowserRouter`: For client-side routing.
+ * - `AuthProvider`: For managing authentication state.
+ *
+ * It defines the application's route structure, including protected routes for trainers and students.
+ *
+ * @returns {JSX.Element} The rendered application.
+ */
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>

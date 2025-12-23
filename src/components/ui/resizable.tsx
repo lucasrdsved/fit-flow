@@ -3,6 +3,10 @@ import * as ResizablePrimitive from "react-resizable-panels";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * A group component that manages the layout of resizable panels.
+ * Wrapper around `react-resizable-panels` PanelGroup.
+ */
 const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeof ResizablePrimitive.PanelGroup>) => (
   <ResizablePrimitive.PanelGroup
     className={cn("flex h-full w-full data-[panel-group-direction=vertical]:flex-col", className)}
@@ -10,8 +14,16 @@ const ResizablePanelGroup = ({ className, ...props }: React.ComponentProps<typeo
   />
 );
 
+/**
+ * An individual resizable panel.
+ * Wrapper around `react-resizable-panels` Panel.
+ */
 const ResizablePanel = ResizablePrimitive.Panel;
 
+/**
+ * The handle used to resize panels.
+ * Wrapper around `react-resizable-panels` PanelResizeHandle.
+ */
 const ResizableHandle = ({
   withHandle,
   className,

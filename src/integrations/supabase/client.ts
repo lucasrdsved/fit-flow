@@ -8,6 +8,14 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+/**
+ * The Supabase client instance used for interacting with the Supabase backend.
+ *
+ * It is initialized with the project URL and publishable key from environment variables.
+ * Authentication state is persisted in `localStorage`.
+ *
+ * @type {import('@supabase/supabase-js').SupabaseClient<Database>}
+ */
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,

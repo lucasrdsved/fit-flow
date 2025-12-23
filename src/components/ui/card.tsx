@@ -3,6 +3,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Variants for the Card component, including styles for different elevation levels, interactivity, and specific use cases like exercises.
+ */
 const cardVariants = cva(
   "rounded-xl border bg-card text-card-foreground transition-all duration-200",
   {
@@ -26,10 +29,21 @@ const cardVariants = cva(
   }
 );
 
+/**
+ * Props for the Card component.
+ */
 export interface CardProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof cardVariants> {}
 
+/**
+ * A container component for grouping related content and actions.
+ *
+ * It supports various visual variants, including specific styles for workouts and interactive cards.
+ *
+ * @param {CardProps} props - The component props.
+ * @returns {JSX.Element} The card component.
+ */
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant, ...props }, ref) => (
     <div
@@ -41,6 +55,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 );
 Card.displayName = "Card";
 
+/**
+ * The header of the card, usually containing the title and description.
+ */
 const CardHeader = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -53,6 +70,9 @@ const CardHeader = React.forwardRef<
 ));
 CardHeader.displayName = "CardHeader";
 
+/**
+ * The title of the card.
+ */
 const CardTitle = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
@@ -68,6 +88,9 @@ const CardTitle = React.forwardRef<
 ));
 CardTitle.displayName = "CardTitle";
 
+/**
+ * The description of the card.
+ */
 const CardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
@@ -80,6 +103,9 @@ const CardDescription = React.forwardRef<
 ));
 CardDescription.displayName = "CardDescription";
 
+/**
+ * The main content area of the card.
+ */
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -88,6 +114,9 @@ const CardContent = React.forwardRef<
 ));
 CardContent.displayName = "CardContent";
 
+/**
+ * The footer of the card, usually containing actions.
+ */
 const CardFooter = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>

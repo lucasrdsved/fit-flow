@@ -2,6 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+/**
+ * Custom hook to fetch the current student's record based on the authenticated user's email.
+ *
+ * @returns {object} The query result containing the student record, loading state, and error.
+ */
 export function useStudentRecord() {
   const { user } = useAuth();
 
@@ -23,6 +28,13 @@ export function useStudentRecord() {
   });
 }
 
+/**
+ * Custom hook to fetch the current student's workouts.
+ *
+ * This hook depends on `useStudentRecord` to get the student's ID.
+ *
+ * @returns {object} The query result containing the list of workouts, loading state, and error.
+ */
 export function useStudentWorkouts() {
   const { data: student } = useStudentRecord();
 
@@ -47,6 +59,13 @@ export function useStudentWorkouts() {
   });
 }
 
+/**
+ * Custom hook to fetch the current student's workout logs.
+ *
+ * Fetches the 10 most recent workout logs for the student.
+ *
+ * @returns {object} The query result containing the workout logs, loading state, and error.
+ */
 export function useStudentWorkoutLogs() {
   const { data: student } = useStudentRecord();
 
@@ -72,6 +91,13 @@ export function useStudentWorkoutLogs() {
   });
 }
 
+/**
+ * Custom hook to fetch the current student's measurements.
+ *
+ * Fetches the 10 most recent measurements for the student.
+ *
+ * @returns {object} The query result containing the measurements, loading state, and error.
+ */
 export function useStudentMeasurements() {
   const { data: student } = useStudentRecord();
 

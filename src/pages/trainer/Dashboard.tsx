@@ -19,6 +19,17 @@ import { useTrainerStudents, useTrainerStats } from "@/hooks/useTrainerData";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { useToast } from "@/hooks/use-toast";
 
+/**
+ * The trainer dashboard page.
+ *
+ * This component provides an overview of the trainer's activities, including active students,
+ * workouts created, and weekly sessions. It also lists recent students and upcoming sessions.
+ *
+ * It uses data hooks (`useTrainerStudents`, `useTrainerStats`) to fetch the trainer's data
+ * and displays loading states or mock data if necessary.
+ *
+ * @returns {JSX.Element} The trainer dashboard page.
+ */
 export default function TrainerDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();

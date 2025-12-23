@@ -4,6 +4,10 @@ import { ChevronRight, MoreHorizontal } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * The root container for breadcrumbs.
+ * Uses a `nav` element with an aria-label.
+ */
 const Breadcrumb = React.forwardRef<
   HTMLElement,
   React.ComponentPropsWithoutRef<"nav"> & {
@@ -12,6 +16,10 @@ const Breadcrumb = React.forwardRef<
 >(({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />);
 Breadcrumb.displayName = "Breadcrumb";
 
+/**
+ * The list container for breadcrumb items.
+ * Uses an `ol` element.
+ */
 const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWithoutRef<"ol">>(
   ({ className, ...props }, ref) => (
     <ol
@@ -26,6 +34,9 @@ const BreadcrumbList = React.forwardRef<HTMLOListElement, React.ComponentPropsWi
 );
 BreadcrumbList.displayName = "BreadcrumbList";
 
+/**
+ * An individual list item within the breadcrumb.
+ */
 const BreadcrumbItem = React.forwardRef<HTMLLIElement, React.ComponentPropsWithoutRef<"li">>(
   ({ className, ...props }, ref) => (
     <li ref={ref} className={cn("inline-flex items-center gap-1.5", className)} {...props} />
@@ -33,6 +44,10 @@ const BreadcrumbItem = React.forwardRef<HTMLLIElement, React.ComponentPropsWitho
 );
 BreadcrumbItem.displayName = "BreadcrumbItem";
 
+/**
+ * A link within a breadcrumb item.
+ * Supports `asChild` to use a custom component (e.g., from `next/link` or `react-router-dom`).
+ */
 const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<"a"> & {
@@ -45,6 +60,10 @@ const BreadcrumbLink = React.forwardRef<
 });
 BreadcrumbLink.displayName = "BreadcrumbLink";
 
+/**
+ * Represents the current page in the breadcrumb trail.
+ * Not clickable and styled to indicate it's the active page.
+ */
 const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWithoutRef<"span">>(
   ({ className, ...props }, ref) => (
     <span
@@ -59,6 +78,10 @@ const BreadcrumbPage = React.forwardRef<HTMLSpanElement, React.ComponentPropsWit
 );
 BreadcrumbPage.displayName = "BreadcrumbPage";
 
+/**
+ * Visual separator between breadcrumb items.
+ * Defaults to a chevron right icon.
+ */
 const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentProps<"li">) => (
   <li role="presentation" aria-hidden="true" className={cn("[&>svg]:size-3.5", className)} {...props}>
     {children ?? <ChevronRight />}
@@ -66,6 +89,9 @@ const BreadcrumbSeparator = ({ children, className, ...props }: React.ComponentP
 );
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
 
+/**
+ * Visual ellipsis to indicate hidden breadcrumb items.
+ */
 const BreadcrumbEllipsis = ({ className, ...props }: React.ComponentProps<"span">) => (
   <span
     role="presentation"

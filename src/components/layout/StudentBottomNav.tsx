@@ -15,6 +15,14 @@ const studentNavItems = [
   { icon: User, label: "Perfil", href: "/student/profile" },
 ];
 
+/**
+ * The bottom navigation bar for the student view.
+ *
+ * It provides links to the main sections of the student application (Home, Workout, Progress, Profile).
+ * It uses a glassmorphism effect and highlights the active tab.
+ *
+ * @returns {JSX.Element} The student bottom navigation component.
+ */
 export function StudentBottomNav() {
   const location = useLocation();
 

@@ -2,6 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+/**
+ * Custom hook to fetch all students associated with the current trainer.
+ *
+ * @returns {object} The query result containing the list of students, loading state, and error.
+ */
 export function useTrainerStudents() {
   const { user } = useAuth();
 
@@ -23,6 +28,13 @@ export function useTrainerStudents() {
   });
 }
 
+/**
+ * Custom hook to fetch all workouts created by the current trainer.
+ *
+ * Includes associated student details and exercises for each workout.
+ *
+ * @returns {object} The query result containing the list of workouts, loading state, and error.
+ */
 export function useTrainerWorkouts() {
   const { user } = useAuth();
 
@@ -48,6 +60,11 @@ export function useTrainerWorkouts() {
   });
 }
 
+/**
+ * Custom hook to create a new student record.
+ *
+ * @returns {object} The mutation object for creating a student, including mutate function and status.
+ */
 export function useCreateStudent() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -83,6 +100,11 @@ export function useCreateStudent() {
   });
 }
 
+/**
+ * Custom hook to update an existing student record.
+ *
+ * @returns {object} The mutation object for updating a student.
+ */
 export function useUpdateStudent() {
   const queryClient = useQueryClient();
 
@@ -114,6 +136,11 @@ export function useUpdateStudent() {
   });
 }
 
+/**
+ * Custom hook to delete a student record.
+ *
+ * @returns {object} The mutation object for deleting a student.
+ */
 export function useDeleteStudent() {
   const queryClient = useQueryClient();
 
@@ -132,6 +159,11 @@ export function useDeleteStudent() {
   });
 }
 
+/**
+ * Custom hook to create a new workout and its associated exercises.
+ *
+ * @returns {object} The mutation object for creating a workout.
+ */
 export function useCreateWorkout() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -188,6 +220,13 @@ export function useCreateWorkout() {
   });
 }
 
+/**
+ * Custom hook to fetch statistics for the trainer dashboard.
+ *
+ * Calculates the number of students, workouts, and weekly workout completions.
+ *
+ * @returns {object} The query result containing the stats, loading state, and error.
+ */
 export function useTrainerStats() {
   const { user } = useAuth();
 

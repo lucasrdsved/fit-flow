@@ -4,6 +4,9 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Variants for the Button component, including general styles, fitness-specific themes, and sizing options.
+ */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold font-display ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
   {
@@ -47,12 +50,28 @@ const buttonVariants = cva(
   }
 );
 
+/**
+ * Props for the Button component.
+ */
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
+  /**
+   * If true, the button will render as a child component (using Radix UI's Slot).
+   * This allows composing the button styles with other components like `Link`.
+   */
   asChild?: boolean;
 }
 
+/**
+ * A versatile button component supporting various styles and sizes.
+ *
+ * It provides specialized variants for fitness contexts (e.g., 'success', 'hero', 'action')
+ * and touch-friendly sizes for mobile usage.
+ *
+ * @param {ButtonProps} props - The component props.
+ * @returns {JSX.Element} The button component.
+ */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";

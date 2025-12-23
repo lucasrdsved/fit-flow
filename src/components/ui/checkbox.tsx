@@ -4,6 +4,9 @@ import { Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * A control that allows the user to toggle between checked and unchecked states.
+ */
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>

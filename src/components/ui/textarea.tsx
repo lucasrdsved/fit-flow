@@ -4,6 +4,14 @@ import { cn } from "@/lib/utils";
 
 export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 
+/**
+ * A textarea component for multi-line text input.
+ *
+ * It provides standard styling for textareas, including focus states and disabled styles.
+ *
+ * @param {TextareaProps} props - The component props.
+ * @returns {JSX.Element} The textarea component.
+ */
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => {
   return (
     <textarea

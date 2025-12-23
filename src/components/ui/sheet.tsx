@@ -5,14 +5,30 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * The root component for the Sheet.
+ * A panel that slides out from the edge of the screen.
+ */
 const Sheet = SheetPrimitive.Root;
 
+/**
+ * The trigger that opens the Sheet.
+ */
 const SheetTrigger = SheetPrimitive.Trigger;
 
+/**
+ * The button that closes the Sheet.
+ */
 const SheetClose = SheetPrimitive.Close;
 
+/**
+ * A portal that renders the Sheet into the body.
+ */
 const SheetPortal = SheetPrimitive.Portal;
 
+/**
+ * The overlay that covers the background when the Sheet is open.
+ */
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Overlay>
@@ -28,6 +44,9 @@ const SheetOverlay = React.forwardRef<
 ));
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
+/**
+ * Variants for the Sheet component, determining slide direction and styling.
+ */
 const sheetVariants = cva(
   "fixed z-50 gap-4 bg-background p-6 shadow-lg transition ease-in-out data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
   {
@@ -51,6 +70,9 @@ interface SheetContentProps
   extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
+/**
+ * The content of the Sheet.
+ */
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
   ({ side = "right", className, children, ...props }, ref) => (
     <SheetPortal>
@@ -67,16 +89,25 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
 );
 SheetContent.displayName = SheetPrimitive.Content.displayName;
 
+/**
+ * The header of the Sheet, usually containing the title and description.
+ */
 const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col space-y-2 text-center sm:text-left", className)} {...props} />
 );
 SheetHeader.displayName = "SheetHeader";
 
+/**
+ * The footer of the Sheet, usually containing actions.
+ */
 const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2", className)} {...props} />
 );
 SheetFooter.displayName = "SheetFooter";
 
+/**
+ * The title of the Sheet.
+ */
 const SheetTitle = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Title>
@@ -85,6 +116,9 @@ const SheetTitle = React.forwardRef<
 ));
 SheetTitle.displayName = SheetPrimitive.Title.displayName;
 
+/**
+ * The description of the Sheet.
+ */
 const SheetDescription = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Description>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Description>

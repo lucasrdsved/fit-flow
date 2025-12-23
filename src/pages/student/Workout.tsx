@@ -95,6 +95,17 @@ interface SetLog {
   completed: boolean;
 }
 
+/**
+ * The student workout page.
+ *
+ * This component guides the student through their workout session. It allows them to log
+ * sets, reps, and weights for each exercise. It also includes a rest timer and
+ * progress tracking during the workout.
+ *
+ * Note: Currently uses mock data for the workout plan.
+ *
+ * @returns {JSX.Element} The student workout session page.
+ */
 export default function StudentWorkout() {
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [exerciseLogs, setExerciseLogs] = useState<Record<string, SetLog[]>>({});
