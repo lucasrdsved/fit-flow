@@ -42,11 +42,12 @@
 
 ## Phase 4: Routing & Protection
 
-- [~] Task: Update Protected Route
+- [x] Task: Update Protected Route 1753f97
   - Enhance `src/components/auth/ProtectedRoute.tsx` to check Supabase session.
   - Implement role-based redirect logic (Trainer vs Student).
-- [ ] Task: Create Auth Pages
+- [~] Task: Create Auth Pages
   - Create `src/pages/auth/Login.tsx`.
   - Create `src/pages/auth/SignUp.tsx`.
   - Setup routes in `App.tsx`.
+  - **Test:** Verify routing and page rendering.
 - [ ] Task: Conductor - User Manual Verification 'Routing & Protection' (Protocol in workflow.md)
