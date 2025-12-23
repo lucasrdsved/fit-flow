@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCreateWorkout } from '@/hooks/useTrainerData';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Plus, Save, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -65,11 +66,17 @@ export default function TrainerPlanEditor() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await createWorkout.mutateAsync({
-        ...values,
+        title: values.title,
+        description: values.description,
+        workout_type: values.workout_type,
         exercises: values.exercises.map((ex, index) => ({
-          ...ex,
-          order_index: index,
+          name: ex.name,
           sets: Number(ex.sets),
+          reps: ex.reps,
+          rest_time: ex.rest_time,
+          notes: ex.notes,
+          video_url: ex.video_url,
+          order_index: index,
         })),
       });
 

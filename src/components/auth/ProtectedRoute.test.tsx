@@ -9,10 +9,10 @@ vi.mock('@/contexts/AuthContext', () => ({
 }));
 
 const renderProtectedRoute = (
-  authMock: unknown,
+  authMock: Partial<ReturnType<typeof useAuth>>,
   allowedTypes?: ('personal' | 'student')[]
 ) => {
-  vi.mocked(useAuth).mockReturnValue(authMock);
+  vi.mocked(useAuth).mockReturnValue(authMock as ReturnType<typeof useAuth>);
 
   return render(
     <MemoryRouter initialEntries={['/protected']}>
@@ -47,7 +47,7 @@ describe('ProtectedRoute', () => {
 
   it('redirects to student dashboard if personal tries to access student route', () => {
     renderProtectedRoute(
-      { loading: false, user: { id: '1' }, userType: 'personal' },
+      { loading: false, user: { id: '1' } as any, userType: 'personal' },
       ['student']
     );
     expect(screen.getByText('Trainer Dashboard')).toBeInTheDocument();
@@ -55,7 +55,7 @@ describe('ProtectedRoute', () => {
 
   it('redirects to trainer dashboard if student tries to access personal route', () => {
     renderProtectedRoute(
-      { loading: false, user: { id: '1' }, userType: 'student' },
+      { loading: false, user: { id: '1' } as any, userType: 'student' },
       ['personal']
     );
     expect(screen.getByText('Student Dashboard')).toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('ProtectedRoute', () => {
 
   it('renders content when access is granted', () => {
     renderProtectedRoute(
-      { loading: false, user: { id: '1' }, userType: 'personal' },
+      { loading: false, user: { id: '1' } as any, userType: 'personal' },
       ['personal']
     );
     expect(screen.getByText('Protected Content')).toBeInTheDocument();

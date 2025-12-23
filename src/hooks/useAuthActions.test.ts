@@ -35,7 +35,7 @@ describe('useLogout', () => {
       mockLogin: vi.fn(),
     });
     vi.mocked(useNavigate).mockReturnValue(navigateMock);
-    vi.mocked(useToast).mockReturnValue({ toast: toastMock, toasts: [] });
+    vi.mocked(useToast).mockReturnValue({ toast: toastMock, toasts: [], dismiss: vi.fn() });
 
     const { result } = renderHook(() => useLogout());
 

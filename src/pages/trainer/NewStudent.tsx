@@ -57,7 +57,10 @@ export default function TrainerNewStudent() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       await createStudent.mutateAsync({
-        ...values,
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        goal: values.goal,
         height: values.height,
         weight: values.weight,
       });

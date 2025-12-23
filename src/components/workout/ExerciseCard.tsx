@@ -19,7 +19,7 @@ interface ExerciseCardProps {
 }
 
 export function ExerciseCard({ exercise, isActive = false, isCompleted = false }: ExerciseCardProps) {
-  const cardVariant = isCompleted ? 'exercise-completed' : isActive ? 'exercise-active' : 'exercise-inactive';
+  const cardVariant = isCompleted ? 'exercise-completed' : isActive ? 'exercise-active' : 'exercise';
 
   return (
     <Card variant={cardVariant} className="mb-4">
