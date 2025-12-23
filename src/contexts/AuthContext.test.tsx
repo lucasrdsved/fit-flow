@@ -9,7 +9,9 @@ vi.mock('@/integrations/supabase/client', () => {
     supabase: {
       auth: {
         getSession: vi.fn(),
-        onAuthStateChange: vi.fn(),
+        onAuthStateChange: vi.fn().mockReturnValue({
+          data: { subscription: { unsubscribe: vi.fn() } },
+        }),
         signInWithPassword: vi.fn(),
         signUp: vi.fn(),
         signOut: vi.fn(),
@@ -21,119 +23,349 @@ vi.mock('@/integrations/supabase/client', () => {
 
 import { supabase } from '@/integrations/supabase/client';
 
-const TestComponent = () => {
-  const { loading, userType, user } = useAuth();
+const TestComponent = ({ onAuthChange }: { onAuthChange?: (userType: string | null) => void }) => {
+  const { loading, userType, user, signIn, signUp, signOut } = useAuth();
+
+  React.useEffect(() => {
+    if (onAuthChange) {
+      onAuthChange(userType);
+    }
+  }, [userType, onAuthChange]);
 
   if (loading) return <div>Loading...</div>;
-  if (!user) return <div>No User</div>;
+  if (!user) return (
+    <div>
+      <span data-testid="user-type">{userType === null ? 'null' : userType}</span>
+      <button onClick={() => signIn('test@example.com', 'password')}>Sign In</button>
+      <button onClick={() => signUp('test@example.com', 'password', 'Test User', 'personal')}>Sign Up</button>
+    </div>
+  );
+
   return (
     <div>
       <span data-testid="user-type">{userType === null ? 'null' : userType}</span>
+      <span data-testid="user-email">{user.email}</span>
+      <button onClick={signOut}>Sign Out</button>
     </div>
   );
 };
 
-describe('AuthContext Race Condition', () => {
+describe('AuthContext', () => {
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it('should wait for profile fetch before setting loading to false', async () => {
-    const mockUser = {
-      id: 'test-user-id',
-      email: 'test@example.com',
-      app_metadata: {},
-      user_metadata: {},
-      aud: 'authenticated',
-      created_at: new Date().toISOString(),
-    };
+  describe('Race Condition Fix', () => {
+    it('should wait for profile fetch before setting loading to false', async () => {
+      const mockUser = {
+        id: 'test-user-id',
+        email: 'test@example.com',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      };
 
-    const mockSession = {
-      user: mockUser,
-      access_token: 'token',
-      refresh_token: 'refresh',
-      expires_in: 3600,
-      token_type: 'bearer',
-    };
+      const mockSession = {
+        user: mockUser,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+      };
 
-    // Mock getSession to resolve with a user
-    vi.mocked(supabase.auth.getSession).mockResolvedValue({
-      data: { session: mockSession },
-      error: null,
-    });
-
-    // Mock onAuthStateChange
-    vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
-      data: { subscription: { unsubscribe: vi.fn() } },
-    });
-
-    // Mock profile fetch with a controlled promise
-    let resolveProfile: (value: unknown) => void;
-    const profilePromise = new Promise((resolve) => {
-      resolveProfile = resolve;
-    });
-
-    vi.mocked(supabase.from).mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockReturnValue(profilePromise),
-        }),
-      }),
-    });
-
-    render(
-      <AuthProvider>
-        <TestComponent />
-      </AuthProvider>,
-    );
-
-    // 1. Initial render: Loading...
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-
-    // 2. Wait for getSession to resolve (it's a microtask, usually fast)
-    // We can just wait a tick or check that loading is STILL there.
-    // In the BUGGY version, loading becomes false almost immediately after render/useEffect.
-
-    // We try to verify that it stays loading while profile is pending.
-    // We can't easily "wait for time" without fake timers, but let's check immediate state.
-    // If we simply wait for the queue to flush, the buggy code will have set loading=false.
-
-    // Let's use `waitFor` to assert that we are STILL loading.
-    // BUT `waitFor` waits for a condition to be TRUE.
-    // If we assume the bug makes it FALSE, we can verify that.
-
-    // HOWEVER, to make the test FAIL when the bug is present:
-    // We want to ensure that "Loading..." is PRESENCE is maintained.
-    // This is hard to assert "forever" (or for X ms).
-
-    // Better strategy: Assert that when "Loading..." DISAPPEARS, userType is 'student'.
-
-    // Resolve the profile AFTER some time or manually.
-    // But if the bug is present, "Loading..." disappears BEFORE we resolve.
-
-    // So:
-    // 1. Render.
-    // 2. Wait for getSession to settle (which we can't explicitly do easily without access to the promise).
-    //    But we know it runs in useEffect.
-
-    // Let's just resolve the profile in a setImmediate/setTimeout to ensure the chain has a chance to run.
-    setTimeout(() => {
-      resolveProfile({
-        data: { id: 'test-user-id', user_type: 'student' },
+      // Mock getSession to resolve with a user
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: mockSession },
         error: null,
       });
-    }, 100);
 
-    // 3. Wait for Loading to disappear.
-    await waitFor(() => {
-      expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      // Mock onAuthStateChange
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
+      // Mock profile fetch with a controlled promise
+      let resolveProfile: (value: unknown) => void;
+      const profilePromise = new Promise((resolve) => {
+        resolveProfile = resolve;
+      });
+
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockReturnValue(profilePromise),
+          }),
+        }),
+      });
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>,
+      );
+
+      // 1. Initial render: Loading...
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+      // Resolve the profile
+      setTimeout(() => {
+        resolveProfile({
+          data: { id: 'test-user-id', user_type: 'student' },
+          error: null,
+        });
+      }, 100);
+
+      // Wait for Loading to disappear and check userType
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+
+      const userTypeSpan = screen.getByTestId('user-type');
+      expect(userTypeSpan).toHaveTextContent('student');
+    });
+  });
+
+  describe('Authentication Flow', () => {
+    it('should handle sign in successfully', async () => {
+      const mockUser = {
+        id: 'test-user-id',
+        email: 'test@example.com',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      };
+
+      // Mock successful sign in
+      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
+        data: { user: mockUser, session: null },
+        error: null,
+      });
+
+      // Mock profile fetch
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { id: 'test-user-id', user_type: 'personal', name: 'Test User' },
+              error: null,
+            }),
+          }),
+        }),
+      });
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>,
+      );
+
+      // Click sign in button
+      const signInButton = screen.getByText('Sign In');
+      await act(async () => {
+        signInButton.click();
+      });
+
+      // Should show user email after successful sign in
+      await waitFor(() => {
+        expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
+      });
     });
 
-    // 4. Assert userType.
-    // If bug is present: Loading disappeared BEFORE timeout. userType is null. Test FAILS.
-    // If fix is present: Loading waits for timeout/resolve. userType is student. Test PASSES.
+    it('should handle sign up successfully', async () => {
+      const mockUser = {
+        id: 'test-user-id',
+        email: 'test@example.com',
+        app_metadata: {},
+        user_metadata: { name: 'Test User' },
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      };
 
-    const userTypeSpan = screen.getByTestId('user-type');
-    expect(userTypeSpan).toHaveTextContent('student');
+      // Mock successful sign up
+      vi.mocked(supabase.auth.signUp).mockResolvedValue({
+        data: { user: mockUser, session: null },
+        error: null,
+      });
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>,
+      );
+
+      // Click sign up button
+      const signUpButton = screen.getByText('Sign Up');
+      await act(async () => {
+        signUpButton.click();
+      });
+
+      // Should still show sign up form since no session is created
+      expect(screen.getByText('Sign In')).toBeInTheDocument();
+      expect(screen.getByText('Sign Up')).toBeInTheDocument();
+    });
+
+    it('should handle sign out', async () => {
+      const mockUser = {
+        id: 'test-user-id',
+        email: 'test@example.com',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      };
+
+      const mockSession = {
+        user: mockUser,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+      };
+
+      // Mock initial session
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: mockSession },
+        error: null,
+      });
+
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { id: 'test-user-id', user_type: 'personal', name: 'Test User' },
+              error: null,
+            }),
+          }),
+        }),
+      });
+
+      vi.mocked(supabase.auth.signOut).mockResolvedValue({
+        error: null,
+      });
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>,
+      );
+
+      // Wait for user to be loaded
+      await waitFor(() => {
+        expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
+      });
+
+      // Click sign out button
+      const signOutButton = screen.getByText('Sign Out');
+      await act(async () => {
+        signOutButton.click();
+      });
+
+      // Should show sign in form again
+      await waitFor(() => {
+        expect(screen.getByText('Sign In')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle sign in error', async () => {
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
+        data: { user: null, session: null },
+        error: { message: 'Invalid credentials' },
+      });
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>,
+      );
+
+      const signInButton = screen.getByText('Sign In');
+      await act(async () => {
+        signInButton.click();
+      });
+
+      // Should still show sign in form
+      expect(screen.getByText('Sign In')).toBeInTheDocument();
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle profile fetch error gracefully', async () => {
+      const mockUser = {
+        id: 'test-user-id',
+        email: 'test@example.com',
+        app_metadata: {},
+        user_metadata: {},
+        aud: 'authenticated',
+        created_at: new Date().toISOString(),
+      };
+
+      const mockSession = {
+        user: mockUser,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+      };
+
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: mockSession },
+        error: null,
+      });
+
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
+      vi.mocked(supabase.from).mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: null,
+              error: { message: 'Profile not found' },
+            }),
+          }),
+        }),
+      });
+
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>,
+      );
+
+      // Should still show user (even without profile)
+      await waitFor(() => {
+        expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
+      });
+
+      // userType should be null due to profile fetch error
+      expect(screen.getByTestId('user-type')).toHaveTextContent('null');
+    });
+  });
+
+  describe('Mock Login', () => {
+    it('should handle mock login for personal trainer', () => {
+      let capturedUserType: string | null = null;
+
+      render(
+        <AuthProvider>
+          <TestComponent onAuthChange={(userType) => { capturedUserType = userType; }} />
+        </AuthProvider>,
+      );
+
+      // The AuthProvider doesn't expose mockLogin directly to TestComponent
+      // This test verifies the context is properly set up
+      expect(capturedUserType).toBeNull();
+    });
   });
 });

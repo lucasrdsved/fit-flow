@@ -33,10 +33,48 @@ A comprehensive fitness management platform designed to streamline the interacti
 
 ## Database Setup
 
-This project uses Supabase. Ensure you have the following tables:
+This project uses Supabase with Row Level Security (RLS) enabled for data protection.
 
-- `profiles`, `students`, `workouts`, `exercises`, `workout_logs`, `measurements`, `messages`.
-- **New:** `exercise_logs` (See `supabase/migrations` for details).
+### 🚨 Security Setup (CRITICAL)
+
+**Before deploying to production, you MUST configure Row Level Security:**
+
+1. **Execute the RLS setup script** in your Supabase SQL Editor:
+   - Go to: https://supabase.com/dashboard/project/YOUR_PROJECT/sql
+   - Copy and paste the contents of `supabase/setup_rls.sql`
+   - Run the script
+
+This script will:
+- ✅ Enable Row Level Security on all tables
+- ✅ Create security policies for data access control
+- ✅ Set up automatic profile creation triggers
+- ✅ Create performance indexes
+
+### Tables Structure
+
+The database includes the following tables with RLS policies:
+
+- `profiles` - User profiles (personal/student roles)
+- `students` - Student information (trainer-owned)
+- `workouts` - Workout plans and assignments
+- `exercises` - Individual exercises within workouts
+- `workout_logs` - Student workout completion records
+- `exercise_logs` - Detailed exercise logging per set
+- `measurements` - Student body measurements
+- `messages` - Communication between trainers and students
+
+### Environment Variables
+
+Copy `env.example` to `.env` and configure:
+
+```bash
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### Database Migrations
+
+See `supabase/migrations/` for schema definitions and RLS policies.
 
 ## Testing
 
