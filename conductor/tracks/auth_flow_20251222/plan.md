@@ -40,14 +40,15 @@
   - **Test:** Mock Supabase call.
 - [x] Task: Conductor - User Manual Verification 'Authentication Logic Integration' (Protocol in workflow.md) c04e874
 
-## Phase 4: Routing & Protection
+## Phase 4: Routing & Protection (Refactored for Student-First)
 
-- [x] Task: Update Protected Route 1753f97
-  - Enhance `src/components/auth/ProtectedRoute.tsx` to check Supabase session.
-  - Implement role-based redirect logic (Trainer vs Student).
-- [~] Task: Create Auth Pages
-  - Create `src/pages/auth/Login.tsx`.
-  - Create `src/pages/auth/SignUp.tsx`.
-  - Setup routes in `App.tsx`.
-  - **Test:** Verify routing and page rendering.
-- [ ] Task: Conductor - User Manual Verification 'Routing & Protection' (Protocol in workflow.md)
+- [~] Task: Refactor Public Login Page
+  - Update `src/pages/auth/Login.tsx` to be the main entry point (`/`).
+  - Remove "Sign Up" links.
+  - Make "Trainer Login" discrete or use the same form with role redirection.
+  - **Test:** Verify clean login interface.
+- [ ] Task: Update App Routing
+  - Set `Login.tsx` as the element for `/`.
+  - Remove public `register` routes.
+  - Ensure protected routes redirect to `/` (Login) if unauthenticated.
+- [ ] Task: Conductor - User Manual Verification 'Student-First Auth Flow' (Protocol in workflow.md)
