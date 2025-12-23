@@ -9,7 +9,7 @@ import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 // Lazy load all pages for code splitting
-const Index = lazy(() => import('./pages/Index'));
+const Login = lazy(() => import('./pages/auth/Login'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 
 // Trainer pages
@@ -44,7 +44,8 @@ const App = () => (
               </div>
             }>
               <Routes>
-                <Route path="/" element={<Index />} />
+                <Route path="/" element={<Login />} />
+                <Route path="/auth/login" element={<Login />} />
 
                 {/* Trainer Routes - Protected */}
                 <Route
