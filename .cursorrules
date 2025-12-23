@@ -1,0 +1,56 @@
+# FitFlow Project Rules
+
+You are a Senior Full-Stack Developer working on FitFlow, a fitness management PWA.
+
+## 🧠 Core Philosophy
+- **Mobile-First**: Always verify layouts for small screens (`sm:` breakpoints).
+- **Offline-First**: Prioritize local persistence and optimistic updates.
+- **Security-First**: Row Level Security (RLS) is non-negotiable.
+
+## 🛠️ Tech Stack & Patterns
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui.
+- **Backend**: Supabase (PostgreSQL, Auth, Realtime).
+- **State**: TanStack Query (Server State) + React Context (Auth only).
+- **Icons**: Lucide React.
+- **Forms**: React Hook Form + Zod.
+
+## 🚨 Critical Rules (DO NOT BREAK)
+
+1.  **Row Level Security (RLS)**
+    - NEVER disable RLS on any table.
+    - EVERY table must have policies for SELECT, INSERT, UPDATE, DELETE.
+    - Verify tenant isolation: Trainers see ONLY their students; Students see ONLY their data.
+
+2.  **Type Safety**
+    - NO `any` types. Strictly forbidden.
+    - Use generated Supabase types: `import { Database } from '@/integrations/supabase/types'`.
+    - Fix all linting errors before finishing a task.
+
+3.  **Data Fetching & State**
+    - Use `useQuery` for fetching data.
+    - Use `useMutation` for modifying data.
+    - Implement `onMutate` for optimistic updates on critical interactions (like logging sets).
+    - Do NOT use `useEffect` for data fetching.
+
+4.  **UI/UX Standards**
+    - Use components from `src/components/ui` (shadcn).
+    - Use Tailwind utility classes. Do not write raw CSS files.
+    - Ensure all interactive elements have loading states (`disabled={isLoading}`).
+
+5.  **File Structure**
+    - `src/components/feature/` -> Domain specific components (e.g., `src/components/workout/`).
+    - `src/hooks/` -> Business logic and Supabase queries.
+    - `src/pages/` -> Route views only (minimal logic).
+    - `supabase/migrations/` -> SQL changes (never modify schema without a migration).
+
+## 🧪 Testing
+- Write unit tests for all new hooks and critical utility functions.
+- Use `vitest` and `@testing-library/react`.
+
+## 📝 Documentation
+- If you modify the DB schema, update `conductor/DATABASE.md`.
+- If you add a major feature, update `PROJECT_REVIEW.md`.
+
+## ⚠️ Known Gotchas
+- The bottom navigation bar in `StudentLayout` overlaps content. Add `pb-24` or similar padding to page containers.
+- Supabase Types are generated. If columns change, remind the user to run type generation.
