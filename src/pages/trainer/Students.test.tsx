@@ -1,5 +1,4 @@
-
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TrainerStudents from './Students';
 import { BrowserRouter } from 'react-router-dom';
@@ -18,7 +17,7 @@ vi.mock('@/contexts/AuthContext', () => ({
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal();
   return {
-    ...actual as any,
+    ...(actual as Record<string, unknown>),
     Plus: () => <span data-testid="icon-plus" />,
     Search: () => <span data-testid="icon-search" />,
     Filter: () => <span data-testid="icon-filter" />,
@@ -31,13 +30,13 @@ import { useAuth } from '@/contexts/AuthContext';
 describe('TrainerStudents Filter Bug', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    
+
     // Setup default mocks
-    (useAuth as any).mockReturnValue({
+    vi.mocked(useAuth).mockReturnValue({
       userType: 'personal',
     });
 
-    (useTrainerStudents as any).mockReturnValue({
+    vi.mocked(useTrainerStudents).mockReturnValue({
       data: [
         { id: '1', name: 'Student 1', email: 's1@example.com', created_at: '2023-01-01' },
         { id: '2', name: 'Student 2', email: 's2@example.com', created_at: '2023-01-02' },
@@ -52,7 +51,7 @@ describe('TrainerStudents Filter Bug', () => {
     render(
       <BrowserRouter>
         <TrainerStudents />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     // Initial state: 2 students shown
@@ -60,23 +59,23 @@ describe('TrainerStudents Filter Bug', () => {
     expect(screen.getByText('Student 2')).toBeInTheDocument();
 
     // Click "Inativos"
-    // Since we don't have "active" field in data, we assume "Inativos" should show nothing 
-    // (or only those marked inactive if we had them). 
+    // Since we don't have "active" field in data, we assume "Inativos" should show nothing
+    // (or only those marked inactive if we had them).
     // BUT the bug is that it IGNORES the filter, so it will still show everything.
-    
+
     const inactiveButton = screen.getByText('Inativos');
     fireEvent.click(inactiveButton);
 
     // Verify the bug: Students are STILL visible despite filtering for Inactive (and having no inactive students)
     // If the filter worked (assuming default is active), these should disappear.
     // If the bug exists, they remain.
-    
+
     // We expect them to be IN THE DOCUMENT for the test to pass BEFORE fix (verifying bug presence).
     // Wait, the prompt says: "Write a new test case that specifically fails before your fix and passes after it"
-    
+
     // So I should assert the CORRECT behavior.
     // Correct behavior: Students should disappear when clicking "Inativos" (since none are inactive).
-    
+
     // This expectation should FAIL now.
     expect(screen.queryByText('Student 1')).not.toBeInTheDocument();
     expect(screen.queryByText('Student 2')).not.toBeInTheDocument();

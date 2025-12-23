@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, type Mock } from 'vitest';
 import TrainerPlans from './Plans';
 import * as TrainerDataHooks from '@/hooks/useTrainerData';
 
@@ -24,7 +24,7 @@ describe('TrainerPlans', () => {
   });
 
   it('renders loading state', () => {
-    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
+    vi.mocked(TrainerDataHooks.useTrainerTemplates).mockReturnValue({
       data: null,
       isLoading: true,
     });
@@ -32,14 +32,14 @@ describe('TrainerPlans', () => {
     render(
       <BrowserRouter>
         <TrainerPlans />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText(/Carregando planos/i)).toBeInTheDocument();
   });
 
   it('renders empty state when no plans', () => {
-    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
+    vi.mocked(TrainerDataHooks.useTrainerTemplates).mockReturnValue({
       data: [],
       isLoading: false,
     });
@@ -47,7 +47,7 @@ describe('TrainerPlans', () => {
     render(
       <BrowserRouter>
         <TrainerPlans />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText(/Nenhum plano encontrado/i)).toBeInTheDocument();
@@ -60,17 +60,17 @@ describe('TrainerPlans', () => {
         id: '1',
         title: 'Hypertrophy A',
         created_at: new Date().toISOString(),
-        exercises: [{}, {}, {}] // 3 exercises
+        exercises: [{}, {}, {}], // 3 exercises
       },
       {
         id: '2',
         title: 'Cardio Mix',
         created_at: new Date().toISOString(),
-        exercises: [{}] // 1 exercise
-      }
+        exercises: [{}], // 1 exercise
+      },
     ];
 
-    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
+    (TrainerDataHooks.useTrainerTemplates as Mock).mockReturnValue({
       data: mockPlans,
       isLoading: false,
     });
@@ -78,7 +78,7 @@ describe('TrainerPlans', () => {
     render(
       <BrowserRouter>
         <TrainerPlans />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     expect(screen.getByText('Hypertrophy A')).toBeInTheDocument();
@@ -89,10 +89,10 @@ describe('TrainerPlans', () => {
   it('filters plans by search', () => {
     const mockPlans = [
       { id: '1', title: 'Hypertrophy', created_at: new Date().toISOString() },
-      { id: '2', title: 'Cardio', created_at: new Date().toISOString() }
+      { id: '2', title: 'Cardio', created_at: new Date().toISOString() },
     ];
 
-    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
+    vi.mocked(TrainerDataHooks.useTrainerTemplates).mockReturnValue({
       data: mockPlans,
       isLoading: false,
     });
@@ -100,7 +100,7 @@ describe('TrainerPlans', () => {
     render(
       <BrowserRouter>
         <TrainerPlans />
-      </BrowserRouter>
+      </BrowserRouter>,
     );
 
     const searchInput = screen.getByPlaceholderText(/Buscar planos/i);

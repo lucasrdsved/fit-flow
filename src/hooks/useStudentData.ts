@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export function useStartWorkout() {
   const { data: student } = useStudentRecord();
-  
+
   return useMutation({
     mutationFn: async ({ workoutId }: { workoutId: string }) => {
       if (!student?.id) throw new Error('Student not found');
@@ -28,13 +28,13 @@ export function useStartWorkout() {
 
 export function useLogSet() {
   return useMutation({
-    mutationFn: async ({ 
-      workoutLogId, 
-      exerciseId, 
-      setNumber, 
-      reps, 
-      weight 
-    }: { 
+    mutationFn: async ({
+      workoutLogId,
+      exerciseId,
+      setNumber,
+      reps,
+      weight,
+    }: {
       workoutLogId: string;
       exerciseId: string;
       setNumber: number;
@@ -49,7 +49,7 @@ export function useLogSet() {
           set_number: setNumber,
           reps,
           weight,
-          completed: true
+          completed: true,
         })
         .select()
         .single();
@@ -62,14 +62,14 @@ export function useLogSet() {
 
 export function useFinishWorkout() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ 
-      logId, 
-      durationMinutes, 
-      notes, 
-      difficulty 
-    }: { 
+    mutationFn: async ({
+      logId,
+      durationMinutes,
+      notes,
+      difficulty,
+    }: {
       logId: string;
       durationMinutes: number;
       notes?: string;
@@ -81,7 +81,7 @@ export function useFinishWorkout() {
           duration_minutes: durationMinutes,
           notes,
           difficulty_rating: difficulty,
-          completed_at: new Date().toISOString() // Update to actual finish time
+          completed_at: new Date().toISOString(), // Update to actual finish time
         })
         .eq('id', logId)
         .select()
@@ -127,10 +127,12 @@ export function useStudentWorkouts() {
 
       const { data, error } = await supabase
         .from('workouts')
-        .select(`
+        .select(
+          `
           *,
           exercises (*)
-        `)
+        `,
+        )
         .eq('student_id', student.id)
         .order('created_at', { ascending: false });
 
@@ -151,7 +153,8 @@ export function useStudentWorkoutLogs() {
 
       const { data, error } = await supabase
         .from('workout_logs')
-        .select(`
+        .select(
+          `
           *,
           workouts (title, workout_type),
           exercise_logs (
@@ -160,7 +163,8 @@ export function useStudentWorkoutLogs() {
             completed,
             exercises (name)
           )
-        `)
+        `,
+        )
         .eq('student_id', student.id)
         .order('completed_at', { ascending: false })
         .limit(20);

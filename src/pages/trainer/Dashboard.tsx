@@ -1,23 +1,23 @@
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { 
-  Users, 
-  Calendar, 
-  TrendingUp, 
-  CheckCircle, 
-  Clock, 
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import {
+  Users,
+  Calendar,
+  TrendingUp,
+  CheckCircle,
+  Clock,
   ArrowUpRight,
   Plus,
-  LogOut
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useTrainerStudents, useTrainerStats } from "@/hooks/useTrainerData";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { useToast } from "@/hooks/use-toast";
+  LogOut,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTrainerStudents, useTrainerStats } from '@/hooks/useTrainerData';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useToast } from '@/hooks/use-toast';
 
 export default function TrainerDashboard() {
   const navigate = useNavigate();
@@ -30,69 +30,71 @@ export default function TrainerDashboard() {
   const isMockMode = userType && !studentsLoading && (!students || students.length === 0);
 
   const displayStats = [
-    { 
-      label: "Alunos Ativos", 
-      value: stats?.studentsCount?.toString() || (isMockMode ? "24" : "0"), 
-      icon: Users, 
-      change: "+3", 
-      changeType: "positive" as const 
+    {
+      label: 'Alunos Ativos',
+      value: stats?.studentsCount?.toString() || (isMockMode ? '24' : '0'),
+      icon: Users,
+      change: '+3',
+      changeType: 'positive' as const,
     },
-    { 
-      label: "Treinos Criados", 
-      value: stats?.workoutsCount?.toString() || (isMockMode ? "48" : "0"), 
-      icon: Calendar, 
-      change: "2 novos", 
-      changeType: "neutral" as const 
+    {
+      label: 'Treinos Criados',
+      value: stats?.workoutsCount?.toString() || (isMockMode ? '48' : '0'),
+      icon: Calendar,
+      change: '2 novos',
+      changeType: 'neutral' as const,
     },
-    { 
-      label: "Sessões Semana", 
-      value: stats?.weeklyCompletions?.toString() || (isMockMode ? "32" : "0"), 
-      icon: CheckCircle, 
-      change: "+5", 
-      changeType: "positive" as const 
+    {
+      label: 'Sessões Semana',
+      value: stats?.weeklyCompletions?.toString() || (isMockMode ? '32' : '0'),
+      icon: CheckCircle,
+      change: '+5',
+      changeType: 'positive' as const,
     },
-    { 
-      label: "Horas Trabalhadas", 
-      value: "32h", 
-      icon: Clock, 
-      change: "Esta semana", 
-      changeType: "neutral" as const 
+    {
+      label: 'Horas Trabalhadas',
+      value: '32h',
+      icon: Clock,
+      change: 'Esta semana',
+      changeType: 'neutral' as const,
     },
   ];
 
-  const displayStudents = isMockMode ? [
-    { id: "1", name: "Maria Silva", email: "maria@email.com", created_at: "2024-01-15" },
-    { id: "2", name: "João Santos", email: "joao@email.com", created_at: "2024-02-20" },
-    { id: "3", name: "Ana Costa", email: "ana@email.com", created_at: "2024-03-01" },
-    { id: "4", name: "Pedro Lima", email: "pedro@email.com", created_at: "2023-11-10" },
-  ] : (students?.slice(0, 4) || []);
+  const displayStudents = isMockMode
+    ? [
+        { id: '1', name: 'Maria Silva', email: 'maria@email.com', created_at: '2024-01-15' },
+        { id: '2', name: 'João Santos', email: 'joao@email.com', created_at: '2024-02-20' },
+        { id: '3', name: 'Ana Costa', email: 'ana@email.com', created_at: '2024-03-01' },
+        { id: '4', name: 'Pedro Lima', email: 'pedro@email.com', created_at: '2023-11-10' },
+      ]
+    : students?.slice(0, 4) || [];
 
   const upcomingSessions = [
-    { id: "1", student: "Maria Silva", time: "14:00", plan: "Treino A - Peito e Tríceps" },
-    { id: "2", student: "Carlos Souza", time: "15:30", plan: "Treino B - Costas e Bíceps" },
-    { id: "3", student: "Fernanda Dias", time: "17:00", plan: "Treino C - Pernas" },
+    { id: '1', student: 'Maria Silva', time: '14:00', plan: 'Treino A - Peito e Tríceps' },
+    { id: '2', student: 'Carlos Souza', time: '15:30', plan: 'Treino B - Costas e Bíceps' },
+    { id: '3', student: 'Fernanda Dias', time: '17:00', plan: 'Treino C - Pernas' },
   ];
 
   const handleLogout = async () => {
     try {
       await signOut();
       toast({
-        title: "Logout realizado",
-        description: "Até logo!",
+        title: 'Logout realizado',
+        description: 'Até logo!',
       });
-      navigate("/", { replace: true });
+      navigate('/', { replace: true });
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Erro ao sair",
-        description: "Tente novamente.",
+        variant: 'destructive',
+        title: 'Erro ao sair',
+        description: 'Tente novamente.',
       });
     }
   };
 
   if (studentsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" text="Carregando dashboard..." />
       </div>
     );
@@ -101,30 +103,26 @@ export default function TrainerDashboard() {
   return (
     <div className="min-h-screen p-6 lg:p-8">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+            <h1 className="font-display text-2xl font-bold text-foreground lg:text-3xl">
               Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1">
-              Bem-vindo de volta, {profile?.name || "Personal"}! Aqui está o resumo do seu dia.
+            <p className="mt-1 text-muted-foreground">
+              Bem-vindo de volta, {profile?.name || 'Personal'}! Aqui está o resumo do seu dia.
             </p>
           </div>
           <div className="flex gap-3">
             <Link to="/trainer/students/new">
               <Button variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Novo Aluno
               </Button>
             </Link>
             <Link to="/trainer/plans/new">
               <Button variant="default">
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Novo Plano
               </Button>
             </Link>
@@ -140,7 +138,7 @@ export default function TrainerDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         {displayStats.map((stat, index) => (
           <motion.div
@@ -153,17 +151,17 @@ export default function TrainerDashboard() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">{stat.label}</p>
-                    <p className="text-3xl font-display font-bold text-foreground">
-                      {stat.value}
-                    </p>
-                    <p className={`text-xs mt-1 ${
-                      stat.changeType === 'positive' ? 'text-success' : 'text-muted-foreground'
-                    }`}>
+                    <p className="mb-1 text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="font-display text-3xl font-bold text-foreground">{stat.value}</p>
+                    <p
+                      className={`mt-1 text-xs ${
+                        stat.changeType === 'positive' ? 'text-success' : 'text-muted-foreground'
+                      }`}
+                    >
                       {stat.change}
                     </p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-primary/10">
+                  <div className="rounded-xl bg-primary/10 p-2.5">
                     <stat.icon className="h-5 w-5 text-primary" />
                   </div>
                 </div>
@@ -173,7 +171,7 @@ export default function TrainerDashboard() {
         ))}
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Recent Students */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -190,7 +188,7 @@ export default function TrainerDashboard() {
               <Link to="/trainer/students">
                 <Button variant="ghost" size="sm">
                   Ver todos
-                  <ArrowUpRight className="h-4 w-4 ml-1" />
+                  <ArrowUpRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
             </CardHeader>
@@ -199,11 +197,15 @@ export default function TrainerDashboard() {
                 {displayStudents.map((student) => (
                   <div
                     key={student.id}
-                    className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors"
+                    className="flex items-center justify-between rounded-xl bg-secondary/50 p-3 transition-colors hover:bg-secondary"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-semibold text-sm">
-                        {student.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      <div className="bg-gradient-primary flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground">
+                        {student.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .slice(0, 2)}
                       </div>
                       <div>
                         <p className="font-medium text-foreground">{student.name}</p>
@@ -211,11 +213,11 @@ export default function TrainerDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="hidden sm:flex flex-col items-end">
+                      <div className="hidden flex-col items-end sm:flex">
                         <span className="text-sm font-medium text-foreground">85%</span>
-                        <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-gradient-accent rounded-full transition-all"
+                        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className="bg-gradient-accent h-full rounded-full transition-all"
                             style={{ width: `85%` }}
                           />
                         </div>
@@ -247,22 +249,20 @@ export default function TrainerDashboard() {
                 {upcomingSessions.map((session) => (
                   <div
                     key={session.id}
-                    className="p-3 rounded-xl border border-border bg-card hover:shadow-md transition-all"
+                    className="rounded-xl border border-border bg-card p-3 transition-all hover:shadow-md"
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="mb-2 flex items-center justify-between">
                       <span className="font-medium text-foreground">{session.student}</span>
                       <Badge variant="sets" className="font-mono">
                         {session.time}
                       </Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground truncate">
-                      {session.plan}
-                    </p>
+                    <p className="truncate text-sm text-muted-foreground">{session.plan}</p>
                   </div>
                 ))}
               </div>
               <Link to="/trainer/calendar">
-                <Button variant="outline" className="w-full mt-4">
+                <Button variant="outline" className="mt-4 w-full">
                   Ver Agenda Completa
                 </Button>
               </Link>
@@ -286,20 +286,20 @@ export default function TrainerDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-48 flex items-center justify-center">
-              <div className="flex items-end gap-2 h-32">
+            <div className="flex h-48 items-center justify-center">
+              <div className="flex h-32 items-end gap-2">
                 {[40, 65, 50, 80, 75, 90, 60].map((height, i) => (
                   <motion.div
                     key={i}
                     initial={{ height: 0 }}
                     animate={{ height: `${height}%` }}
                     transition={{ delay: 0.6 + i * 0.1, duration: 0.5 }}
-                    className="w-8 bg-gradient-accent rounded-t-lg"
+                    className="bg-gradient-accent w-8 rounded-t-lg"
                   />
                 ))}
               </div>
             </div>
-            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
               <span>Seg</span>
               <span>Ter</span>
               <span>Qua</span>

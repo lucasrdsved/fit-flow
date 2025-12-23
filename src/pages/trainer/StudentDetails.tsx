@@ -1,19 +1,19 @@
-import { useParams, Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import { 
-  ChevronLeft, 
-  Mail, 
-  Phone, 
-  Calendar, 
-  Target, 
+import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  ChevronLeft,
+  Mail,
+  Phone,
+  Calendar,
+  Target,
   Dumbbell,
   Plus,
   MoreVertical,
-  Trash2
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  Trash2,
+} from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogContent,
@@ -22,23 +22,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { 
-  useTrainerStudent, 
-  useTrainerWorkouts, 
-  useTrainerTemplates, 
-  useAssignWorkout 
-} from "@/hooks/useTrainerData";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { useState } from "react";
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import {
+  useTrainerStudent,
+  useTrainerWorkouts,
+  useTrainerTemplates,
+  useAssignWorkout,
+} from '@/hooks/useTrainerData';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useState } from 'react';
 
 export default function TrainerStudentDetails() {
   const { id } = useParams<{ id: string }>();
@@ -47,11 +47,11 @@ export default function TrainerStudentDetails() {
   const { data: workouts, isLoading: workoutsLoading } = useTrainerWorkouts(); // Fetches all workouts, we need to filter
   const { data: templates } = useTrainerTemplates();
   const assignWorkout = useAssignWorkout();
-  
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
 
-  const studentWorkouts = workouts?.filter(w => w.student_id === id) || [];
+  const studentWorkouts = workouts?.filter((w) => w.student_id === id) || [];
 
   const handleAssign = async () => {
     if (!selectedTemplate || !id) return;
@@ -63,23 +63,23 @@ export default function TrainerStudentDetails() {
       });
 
       toast({
-        title: "Treino atribuído!",
-        description: "O aluno já pode visualizar o novo treino.",
+        title: 'Treino atribuído!',
+        description: 'O aluno já pode visualizar o novo treino.',
       });
       setIsAssignDialogOpen(false);
-      setSelectedTemplate("");
+      setSelectedTemplate('');
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Erro ao atribuir",
-        description: "Tente novamente mais tarde.",
+        variant: 'destructive',
+        title: 'Erro ao atribuir',
+        description: 'Tente novamente mais tarde.',
       });
     }
   };
 
   if (studentLoading || workoutsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" text="Carregando detalhes..." />
       </div>
     );
@@ -87,8 +87,8 @@ export default function TrainerStudentDetails() {
 
   if (!student) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center">
-        <h1 className="text-2xl font-bold mb-2">Aluno não encontrado</h1>
+      <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
+        <h1 className="mb-2 text-2xl font-bold">Aluno não encontrado</h1>
         <Link to="/trainer/students">
           <Button>Voltar para Lista</Button>
         </Link>
@@ -100,18 +100,21 @@ export default function TrainerStudentDetails() {
     <div className="min-h-screen p-6 lg:p-8">
       {/* Header */}
       <div className="mb-8">
-        <Link to="/trainer/students" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
-          <ChevronLeft className="h-4 w-4 mr-1" />
+        <Link
+          to="/trainer/students"
+          className="mb-4 inline-flex items-center text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="mr-1 h-4 w-4" />
           Voltar para Alunos
         </Link>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <h1 className="font-display text-2xl font-bold text-foreground lg:text-3xl">
             {student.name}
           </h1>
           <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Atribuir Treino
               </Button>
             </DialogTrigger>
@@ -140,8 +143,11 @@ export default function TrainerStudentDetails() {
                 <Button variant="outline" onClick={() => setIsAssignDialogOpen(false)}>
                   Cancelar
                 </Button>
-                <Button onClick={handleAssign} disabled={!selectedTemplate || assignWorkout.isPending}>
-                  {assignWorkout.isPending ? "Atribuindo..." : "Confirmar"}
+                <Button
+                  onClick={handleAssign}
+                  disabled={!selectedTemplate || assignWorkout.isPending}
+                >
+                  {assignWorkout.isPending ? 'Atribuindo...' : 'Confirmar'}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -149,7 +155,7 @@ export default function TrainerStudentDetails() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Info Sidebar */}
         <div className="space-y-6">
           <Card variant="elevated">
@@ -158,7 +164,7 @@ export default function TrainerStudentDetails() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
+                <div className="rounded-lg bg-primary/10 p-2">
                   <Mail className="h-4 w-4 text-primary" />
                 </div>
                 <div>
@@ -168,7 +174,7 @@ export default function TrainerStudentDetails() {
               </div>
               {student.phone && (
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-accent/10">
+                  <div className="rounded-lg bg-accent/10 p-2">
                     <Phone className="h-4 w-4 text-accent" />
                   </div>
                   <div>
@@ -178,7 +184,7 @@ export default function TrainerStudentDetails() {
                 </div>
               )}
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-muted">
+                <div className="rounded-lg bg-muted p-2">
                   <Calendar className="h-4 w-4 text-foreground" />
                 </div>
                 <div>
@@ -196,9 +202,9 @@ export default function TrainerStudentDetails() {
               <CardTitle>Físico & Objetivos</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-               {student.goal && (
+              {student.goal && (
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-energy/10">
+                  <div className="rounded-lg bg-energy/10 p-2">
                     <Target className="h-4 w-4 text-energy" />
                   </div>
                   <div>
@@ -208,13 +214,13 @@ export default function TrainerStudentDetails() {
                 </div>
               )}
               <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="text-center p-3 rounded-lg bg-secondary/50">
-                   <p className="text-2xl font-bold">{student.height || "--"}</p>
-                   <p className="text-xs text-muted-foreground">cm</p>
+                <div className="rounded-lg bg-secondary/50 p-3 text-center">
+                  <p className="text-2xl font-bold">{student.height || '--'}</p>
+                  <p className="text-xs text-muted-foreground">cm</p>
                 </div>
-                <div className="text-center p-3 rounded-lg bg-secondary/50">
-                   <p className="text-2xl font-bold">{student.weight || "--"}</p>
-                   <p className="text-xs text-muted-foreground">kg</p>
+                <div className="rounded-lg bg-secondary/50 p-3 text-center">
+                  <p className="text-2xl font-bold">{student.weight || '--'}</p>
+                  <p className="text-xs text-muted-foreground">kg</p>
                 </div>
               </div>
             </CardContent>
@@ -223,7 +229,7 @@ export default function TrainerStudentDetails() {
 
         {/* Workouts List */}
         <div className="lg:col-span-2">
-          <h2 className="text-xl font-bold mb-4">Treinos Atribuídos</h2>
+          <h2 className="mb-4 text-xl font-bold">Treinos Atribuídos</h2>
           {studentWorkouts.length > 0 ? (
             <div className="space-y-4">
               {studentWorkouts.map((workout) => (
@@ -233,15 +239,16 @@ export default function TrainerStudentDetails() {
                   animate={{ opacity: 1, y: 0 }}
                 >
                   <Card variant="interactive">
-                    <CardContent className="p-4 flex items-center justify-between">
+                    <CardContent className="flex items-center justify-between p-4">
                       <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-secondary">
+                        <div className="rounded-xl bg-secondary p-3">
                           <Dumbbell className="h-6 w-6 text-primary" />
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">{workout.title}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {workout.exercises?.length || 0} exercícios • Criado em {new Date(workout.created_at).toLocaleDateString('pt-BR')}
+                            {workout.exercises?.length || 0} exercícios • Criado em{' '}
+                            {new Date(workout.created_at).toLocaleDateString('pt-BR')}
                           </p>
                         </div>
                       </div>
@@ -256,9 +263,9 @@ export default function TrainerStudentDetails() {
           ) : (
             <Card variant="elevated" className="border-dashed">
               <CardContent className="flex flex-col items-center justify-center p-8 text-center">
-                <Dumbbell className="h-12 w-12 text-muted-foreground mb-4 opacity-50" />
+                <Dumbbell className="mb-4 h-12 w-12 text-muted-foreground opacity-50" />
                 <h3 className="text-lg font-medium">Nenhum treino atribuído</h3>
-                <p className="text-muted-foreground mb-4">
+                <p className="mb-4 text-muted-foreground">
                   Este aluno ainda não possui treinos ativos.
                 </p>
                 <Button onClick={() => setIsAssignDialogOpen(true)}>

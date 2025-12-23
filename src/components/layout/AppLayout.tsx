@@ -1,5 +1,5 @@
-import { Outlet } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Outlet } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export function AppLayout() {
   return (

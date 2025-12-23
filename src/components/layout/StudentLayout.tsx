@@ -1,6 +1,6 @@
-import { Outlet } from "react-router-dom";
-import { StudentBottomNav } from "./StudentBottomNav";
-import { motion } from "framer-motion";
+import { Outlet } from 'react-router-dom';
+import { StudentBottomNav } from './StudentBottomNav';
+import { motion } from 'framer-motion';
 
 export function StudentLayout() {
   return (

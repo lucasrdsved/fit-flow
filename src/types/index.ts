@@ -8,16 +8,16 @@ export type SessionStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancell
 export type NotificationType = 'reminder' | 'feedback' | 'plan_update' | 'schedule_change';
 
 // Muscle groups
-export type MuscleGroup = 
-  | 'chest' 
-  | 'back' 
-  | 'shoulders' 
-  | 'biceps' 
-  | 'triceps' 
-  | 'legs' 
-  | 'glutes' 
-  | 'core' 
-  | 'cardio' 
+export type MuscleGroup =
+  | 'chest'
+  | 'back'
+  | 'shoulders'
+  | 'biceps'
+  | 'triceps'
+  | 'legs'
+  | 'glutes'
+  | 'core'
+  | 'cardio'
   | 'full_body';
 
 // Exercise type

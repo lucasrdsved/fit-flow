@@ -17,7 +17,12 @@ interface AuthContextType {
   userType: UserType;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-  signUp: (email: string, password: string, name: string, userType: 'personal' | 'student') => Promise<{ error: Error | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string,
+    userType: 'personal' | 'student',
+  ) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   mockLogin: (type: 'personal' | 'student') => void;
 }
@@ -33,12 +38,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+
       if (data && !error) {
         setProfile(data);
         setUserType(data.user_type as UserType);
@@ -50,31 +51,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-          setUserType(null);
-        }
-        
-        setLoading(false);
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        await fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+        setUserType(null);
       }
-    );
+
+      setLoading(false);
+    });
 
     // THEN check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         await fetchProfile(session.user.id);
       }
-      
+
       setLoading(false);
     });
 
@@ -93,10 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string, type: 'personal' | 'student') => {
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string,
+    type: 'personal' | 'student',
+  ) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
-      
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -135,7 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: type === 'personal' ? 'Carlos Trainer' : 'Maria Aluna',
       user_type: type,
     };
-    
+
     setProfile(mockProfile);
     setUserType(type);
     setUser({

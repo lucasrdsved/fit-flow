@@ -1,7 +1,7 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useFieldArray, useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -9,28 +9,34 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
-import { useCreateWorkout } from "@/hooks/useTrainerData";
-import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, Plus, Save, Trash2 } from "lucide-react";
-import { Link } from "react-router-dom";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import { useCreateWorkout } from '@/hooks/useTrainerData';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ChevronLeft, Plus, Save, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const exerciseSchema = z.object({
-  name: z.string().min(1, "Nome do exercício é obrigatório"),
-  sets: z.string().transform((val) => Number(val)).pipe(z.number().min(1, "Mínimo 1 série")),
-  reps: z.string().min(1, "Repetições são obrigatórias"),
-  rest_time: z.string().transform((val) => (val ? Number(val) : 0)).optional(),
+  name: z.string().min(1, 'Nome do exercício é obrigatório'),
+  sets: z
+    .string()
+    .transform((val) => Number(val))
+    .pipe(z.number().min(1, 'Mínimo 1 série')),
+  reps: z.string().min(1, 'Repetições são obrigatórias'),
+  rest_time: z
+    .string()
+    .transform((val) => (val ? Number(val) : 0))
+    .optional(),
   notes: z.string().optional(),
-  video_url: z.string().url("URL inválida").optional().or(z.literal("")),
+  video_url: z.string().url('URL inválida').optional().or(z.literal('')),
   order_index: z.number(),
 });
 
 const formSchema = z.object({
-  title: z.string().min(2, "Título deve ter pelo menos 2 caracteres"),
+  title: z.string().min(2, 'Título deve ter pelo menos 2 caracteres'),
   description: z.string().optional(),
   workout_type: z.string().optional(),
   exercises: z.array(exerciseSchema),
@@ -44,16 +50,16 @@ export default function TrainerPlanEditor() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      workout_type: "",
+      title: '',
+      description: '',
+      workout_type: '',
       exercises: [],
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "exercises",
+    name: 'exercises',
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -68,16 +74,16 @@ export default function TrainerPlanEditor() {
       });
 
       toast({
-        title: "Plano criado com sucesso!",
-        description: "O modelo de treino foi salvo.",
+        title: 'Plano criado com sucesso!',
+        description: 'O modelo de treino foi salvo.',
       });
 
-      navigate("/trainer/plans");
+      navigate('/trainer/plans');
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Erro ao criar plano",
-        description: "Ocorreu um erro ao tentar salvar os dados.",
+        variant: 'destructive',
+        title: 'Erro ao criar plano',
+        description: 'Ocorreu um erro ao tentar salvar os dados.',
       });
     }
   }
@@ -85,20 +91,23 @@ export default function TrainerPlanEditor() {
   return (
     <div className="min-h-screen p-6 lg:p-8">
       <div className="mb-8">
-        <Link to="/trainer/plans" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
-          <ChevronLeft className="h-4 w-4 mr-1" />
+        <Link
+          to="/trainer/plans"
+          className="mb-4 inline-flex items-center text-muted-foreground hover:text-foreground"
+        >
+          <ChevronLeft className="mr-1 h-4 w-4" />
           Voltar para Planos
         </Link>
-        <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+        <h1 className="font-display text-2xl font-bold text-foreground lg:text-3xl">
           Novo Plano de Treino
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="mt-1 text-muted-foreground">
           Crie um modelo de treino para reutilizar com seus alunos.
         </p>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-4xl">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-4xl space-y-8">
           <Card variant="elevated">
             <CardHeader>
               <CardTitle>Informações Básicas</CardTitle>
@@ -154,15 +163,17 @@ export default function TrainerPlanEditor() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => append({ 
-                    name: "", 
-                    sets: 3 as any, // Cast for default value matching transform
-                    reps: "10-12", 
-                    rest_time: "60" as any, 
-                    order_index: fields.length 
-                })}
+                onClick={() =>
+                  append({
+                    name: '',
+                    sets: '3', 
+                    reps: '10-12',
+                    rest_time: '60',
+                    order_index: fields.length,
+                  })
+                }
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="mr-2 h-4 w-4" />
                 Adicionar Exercício
               </Button>
             </div>
@@ -170,7 +181,7 @@ export default function TrainerPlanEditor() {
             {fields.map((field, index) => (
               <Card key={field.id} variant="default">
                 <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="mb-4 flex items-start justify-between">
                     <Badge variant="outline" className="mb-2">
                       Exercício {index + 1}
                     </Badge>
@@ -185,7 +196,7 @@ export default function TrainerPlanEditor() {
                     </Button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name={`exercises.${index}.name`}
@@ -199,8 +210,8 @@ export default function TrainerPlanEditor() {
                         </FormItem>
                       )}
                     />
-                    
-                     <FormField
+
+                    <FormField
                       control={form.control}
                       name={`exercises.${index}.video_url`}
                       render={({ field }) => (
@@ -215,7 +226,7 @@ export default function TrainerPlanEditor() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="mb-4 grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name={`exercises.${index}.sets`}
@@ -258,33 +269,33 @@ export default function TrainerPlanEditor() {
                       )}
                     />
                   </div>
-                  
+
                   <FormField
-                      control={form.control}
-                      name={`exercises.${index}.notes`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Observações</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Ex: Focar na excêntrica" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    control={form.control}
+                    name={`exercises.${index}.notes`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Observações</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Ex: Focar na excêntrica" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </CardContent>
               </Card>
             ))}
-            
+
             {fields.length === 0 && (
-                <div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground">
-                    Nenhum exercício adicionado. Clique no botão acima para começar.
-                </div>
+              <div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+                Nenhum exercício adicionado. Clique no botão acima para começar.
+              </div>
             )}
           </div>
 
           <div className="flex justify-end gap-4">
-            <Button type="button" variant="ghost" onClick={() => navigate("/trainer/plans")}>
+            <Button type="button" variant="ghost" onClick={() => navigate('/trainer/plans')}>
               Cancelar
             </Button>
             <Button type="submit" size="lg" disabled={createWorkout.isPending}>
@@ -292,7 +303,7 @@ export default function TrainerPlanEditor() {
                 <>Salvando...</>
               ) : (
                 <>
-                  <Save className="h-4 w-4 mr-2" />
+                  <Save className="mr-2 h-4 w-4" />
                   Salvar Plano
                 </>
               )}

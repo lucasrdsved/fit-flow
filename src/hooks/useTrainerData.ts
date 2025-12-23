@@ -33,11 +33,13 @@ export function useTrainerWorkouts() {
 
       const { data, error } = await supabase
         .from('workouts')
-        .select(`
+        .select(
+          `
           *,
           students (name, email),
           exercises (*)
-        `)
+        `,
+        )
         .eq('personal_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -58,10 +60,12 @@ export function useTrainerTemplates() {
 
       const { data, error } = await supabase
         .from('workouts')
-        .select(`
+        .select(
+          `
           *,
           exercises (*)
-        `)
+        `,
+        )
         .eq('personal_id', user.id)
         .is('student_id', null)
         .order('created_at', { ascending: false });
@@ -112,7 +116,10 @@ export function useUpdateStudent() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, ...updates }: {
+    mutationFn: async ({
+      id,
+      ...updates
+    }: {
       id: string;
       name?: string;
       email?: string;
@@ -144,10 +151,7 @@ export function useDeleteStudent() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('students')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('students').delete().eq('id', id);
 
       if (error) throw error;
     },
@@ -193,14 +197,12 @@ export function useCreateWorkout() {
       if (workoutError) throw workoutError;
 
       if (exercises && exercises.length > 0) {
-        const { error: exercisesError } = await supabase
-          .from('exercises')
-          .insert(
-            exercises.map(ex => ({
-              ...ex,
-              workout_id: workout.id,
-            }))
-          );
+        const { error: exercisesError } = await supabase.from('exercises').insert(
+          exercises.map((ex) => ({
+            ...ex,
+            workout_id: workout.id,
+          })),
+        );
 
         if (exercisesError) throw exercisesError;
       }
@@ -269,7 +271,7 @@ export function useAssignWorkout() {
 
       // 3. Copy exercises
       if (template.exercises && template.exercises.length > 0) {
-        const exercisesToInsert = template.exercises.map(ex => ({
+        const exercisesToInsert = template.exercises.map((ex) => ({
           workout_id: newWorkout.id,
           name: ex.name,
           sets: ex.sets,

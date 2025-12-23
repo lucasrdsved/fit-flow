@@ -1,26 +1,18 @@
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { 
-  ChevronLeft, 
-  Check, 
-  Plus, 
-  Minus, 
-  ChevronDown, 
-  ChevronUp, 
-  Play
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Link, useNavigate } from "react-router-dom";
-import { 
-  useStudentWorkouts, 
-  useStartWorkout, 
-  useLogSet, 
-  useFinishWorkout 
-} from "@/hooks/useStudentData";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, Check, Plus, Minus, ChevronDown, ChevronUp, Play } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  useStudentWorkouts,
+  useStartWorkout,
+  useLogSet,
+  useFinishWorkout,
+} from '@/hooks/useStudentData';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { useToast } from '@/hooks/use-toast';
 
 interface SetLog {
   setNumber: number;
@@ -29,16 +21,33 @@ interface SetLog {
   completed: boolean;
 }
 
+interface Exercise {
+  id: string;
+  name: string;
+  sets: number;
+  reps: string;
+  order_index: number;
+  rest_time: number | null;
+}
+
+interface WorkoutWithExercises {
+  id: string;
+  title: string;
+  description: string | null;
+  workout_type: string | null;
+  exercises: Exercise[];
+}
+
 export default function StudentWorkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const { data: workouts, isLoading: workoutsLoading } = useStudentWorkouts();
   const startWorkoutMutation = useStartWorkout();
   const logSetMutation = useLogSet();
   const finishWorkoutMutation = useFinishWorkout();
 
-  const [activeWorkout, setActiveWorkout] = useState<any | null>(null);
+  const [activeWorkout, setActiveWorkout] = useState<WorkoutWithExercises | null>(null);
   const [workoutLogId, setWorkoutLogId] = useState<string | null>(null);
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [exerciseLogs, setExerciseLogs] = useState<Record<string, SetLog[]>>({});
@@ -47,7 +56,8 @@ export default function StudentWorkout() {
   const [startTime, setStartTime] = useState<number | null>(null);
 
   // Filter and sort exercises
-  const sortedExercises = activeWorkout?.exercises?.sort((a: any, b: any) => a.order_index - b.order_index) || [];
+  const sortedExercises =
+    activeWorkout?.exercises?.sort((a, b) => a.order_index - b.order_index) || [];
   const currentExercise = sortedExercises[currentExerciseIndex];
 
   // Initialize logs for current exercise when it changes
@@ -59,7 +69,7 @@ export default function StudentWorkout() {
         weight: 0,
         completed: false,
       }));
-      setExerciseLogs(prev => ({
+      setExerciseLogs((prev) => ({
         ...prev,
         [currentExercise.id]: initialSets,
       }));
@@ -71,7 +81,7 @@ export default function StudentWorkout() {
     let interval: NodeJS.Timeout;
     if (isResting && restTimer !== null && restTimer > 0) {
       interval = setInterval(() => {
-        setRestTimer(prev => (prev !== null && prev > 0 ? prev - 1 : 0));
+        setRestTimer((prev) => (prev !== null && prev > 0 ? prev - 1 : 0));
       }, 1000);
     } else if (restTimer === 0) {
       setIsResting(false);
@@ -80,47 +90,47 @@ export default function StudentWorkout() {
     return () => clearInterval(interval);
   }, [isResting, restTimer]);
 
-  const handleStartWorkout = async (workout: any) => {
+  const handleStartWorkout = async (workout: WorkoutWithExercises) => {
     try {
       const log = await startWorkoutMutation.mutateAsync({ workoutId: workout.id });
       setWorkoutLogId(log.id);
       setActiveWorkout(workout);
       setStartTime(Date.now());
       toast({
-        title: "Treino iniciado!",
-        description: "Bom treino!",
+        title: 'Treino iniciado!',
+        description: 'Bom treino!',
       });
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Erro ao iniciar",
-        description: "Tente novamente.",
+        variant: 'destructive',
+        title: 'Erro ao iniciar',
+        description: 'Tente novamente.',
       });
     }
   };
 
   const handleFinishWorkout = async () => {
     if (!workoutLogId || !startTime) return;
-    
+
     const durationMinutes = Math.round((Date.now() - startTime) / 60000);
-    
+
     try {
       await finishWorkoutMutation.mutateAsync({
         logId: workoutLogId,
         durationMinutes,
-        notes: "Treino concluído via app",
+        notes: 'Treino concluído via app',
       });
-      
+
       toast({
-        title: "Treino finalizado!",
-        description: "Parabéns por completar mais um treino.",
+        title: 'Treino finalizado!',
+        description: 'Parabéns por completar mais um treino.',
       });
-      navigate("/student");
+      navigate('/student');
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Erro ao finalizar",
-        description: "Tente novamente.",
+        variant: 'destructive',
+        title: 'Erro ao finalizar',
+        description: 'Tente novamente.',
       });
     }
   };
@@ -131,35 +141,37 @@ export default function StudentWorkout() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const currentSets = currentExercise ? (exerciseLogs[currentExercise.id] || []) : [];
-  const currentSetIndex = currentSets.findIndex(s => !s.completed);
+  const currentSets = useMemo(
+    () => (currentExercise ? exerciseLogs[currentExercise.id] || [] : []),
+    [currentExercise, exerciseLogs],
+  );
+  const currentSetIndex = currentSets.findIndex((s) => !s.completed);
   const currentSet = currentSets[currentSetIndex] || currentSets[currentSets.length - 1];
 
-  const updateSetValue = useCallback((field: 'reps' | 'weight', delta: number) => {
-    if (currentSetIndex === -1 || !currentExercise) return;
-    
-    setExerciseLogs(prev => ({
-      ...prev,
-      [currentExercise.id]: prev[currentExercise.id].map((set, i) =>
-        i === currentSetIndex
-          ? { ...set, [field]: Math.max(0, set[field] + delta) }
-          : set
-      ),
-    }));
-  }, [currentExercise, currentSetIndex]);
+  const updateSetValue = useCallback(
+    (field: 'reps' | 'weight', delta: number) => {
+      if (currentSetIndex === -1 || !currentExercise) return;
+
+      setExerciseLogs((prev) => ({
+        ...prev,
+        [currentExercise.id]: prev[currentExercise.id].map((set, i) =>
+          i === currentSetIndex ? { ...set, [field]: Math.max(0, set[field] + delta) } : set,
+        ),
+      }));
+    },
+    [currentExercise, currentSetIndex],
+  );
 
   const completeSet = useCallback(async () => {
     if (currentSetIndex === -1 || !currentExercise || !workoutLogId) return;
-    
+
     const set = currentSets[currentSetIndex];
-    
+
     // Optimistic update
-    setExerciseLogs(prev => ({
+    setExerciseLogs((prev) => ({
       ...prev,
       [currentExercise.id]: prev[currentExercise.id].map((s, i) =>
-        i === currentSetIndex
-          ? { ...s, completed: true }
-          : s
+        i === currentSetIndex ? { ...s, completed: true } : s,
       ),
     }));
 
@@ -170,13 +182,13 @@ export default function StudentWorkout() {
         exerciseId: currentExercise.id,
         setNumber: set.setNumber,
         reps: set.reps,
-        weight: set.weight
+        weight: set.weight,
       });
     } catch (error) {
       toast({
-        variant: "destructive",
-        title: "Erro ao salvar série",
-        description: "Sua série não foi salva no banco de dados.",
+        variant: 'destructive',
+        title: 'Erro ao salvar série',
+        description: 'Sua série não foi salva no banco de dados.',
       });
     }
 
@@ -194,7 +206,7 @@ export default function StudentWorkout() {
 
   if (workoutsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" text="Carregando treinos..." />
       </div>
     );
@@ -205,43 +217,49 @@ export default function StudentWorkout() {
     return (
       <div className="min-h-screen p-6 lg:p-8">
         <div className="mb-8">
-          <Link to="/student" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-4">
-            <ChevronLeft className="h-4 w-4 mr-1" />
+          <Link
+            to="/student"
+            className="mb-4 inline-flex items-center text-muted-foreground hover:text-foreground"
+          >
+            <ChevronLeft className="mr-1 h-4 w-4" />
             Voltar
           </Link>
-          <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+          <h1 className="font-display text-2xl font-bold text-foreground lg:text-3xl">
             Seus Treinos
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Selecione um treino para iniciar
-          </p>
+          <p className="mt-1 text-muted-foreground">Selecione um treino para iniciar</p>
         </div>
 
         <div className="space-y-4">
           {workouts?.map((workout) => (
-            <Card key={workout.id} variant="interactive" onClick={() => handleStartWorkout(workout)} className="cursor-pointer">
+            <Card
+              key={workout.id}
+              variant="interactive"
+              onClick={() => handleStartWorkout(workout)}
+              className="cursor-pointer"
+            >
               <CardHeader>
                 <CardTitle>{workout.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {workout.description || "Sem descrição"}
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {workout.description || 'Sem descrição'}
                 </p>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <span>{workout.exercises?.length || 0} exercícios</span>
                   <span>•</span>
-                  <span>{workout.workout_type || "Geral"}</span>
+                  <span>{workout.workout_type || 'Geral'}</span>
                 </div>
-                <Button className="w-full mt-4">
-                  <Play className="h-4 w-4 mr-2" />
+                <Button className="mt-4 w-full">
+                  <Play className="mr-2 h-4 w-4" />
                   Iniciar Treino
                 </Button>
               </CardContent>
             </Card>
           ))}
-          
+
           {(!workouts || workouts.length === 0) && (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="py-12 text-center text-muted-foreground">
               Nenhum treino atribuído pelo seu personal ainda.
             </div>
           )}
@@ -250,20 +268,20 @@ export default function StudentWorkout() {
     );
   }
 
-  const completedSetsCount = currentSets.filter(s => s.completed).length;
+  const completedSetsCount = currentSets.filter((s) => s.completed).length;
   const exerciseCompleted = completedSetsCount === (currentExercise?.sets || 0);
   const totalExercises = sortedExercises.length;
-  
+
   // Calculate completed exercises based on logs
-  const completedExercisesCount = sortedExercises.filter((ex: any) => {
+  const completedExercisesCount = sortedExercises.filter((ex: Exercise) => {
     const logs = exerciseLogs[ex.id];
-    return logs && logs.every(s => s.completed);
+    return logs && logs.every((s) => s.completed);
   }).length;
 
   return (
-    <div className="min-h-screen bg-background dark pb-24">
+    <div className="dark min-h-screen bg-background pb-24">
       {/* Header */}
-      <div className="sticky top-0 z-10 glass-strong">
+      <div className="glass-strong sticky top-0 z-10">
         <div className="flex items-center justify-between px-4 py-3">
           <Button variant="ghost" size="icon-sm" onClick={() => setActiveWorkout(null)}>
             <ChevronLeft className="h-5 w-5" />
@@ -272,22 +290,24 @@ export default function StudentWorkout() {
             <p className="text-xs text-muted-foreground">
               Exercício {currentExerciseIndex + 1} de {totalExercises}
             </p>
-            <div className="flex gap-1 mt-1 justify-center">
-              {sortedExercises.map((ex: any, i: number) => (
+            <div className="mt-1 flex justify-center gap-1">
+              {sortedExercises.map((ex: Exercise, i: number) => (
                 <div
                   key={ex.id}
                   className={`h-1.5 w-6 rounded-full transition-all ${
-                    exerciseLogs[ex.id]?.every(s => s.completed)
+                    exerciseLogs[ex.id]?.every((s) => s.completed)
                       ? 'bg-success'
                       : i === currentExerciseIndex
-                      ? 'bg-primary'
-                      : 'bg-muted'
+                        ? 'bg-primary'
+                        : 'bg-muted'
                   }`}
                 />
               ))}
             </div>
           </div>
-          <Badge variant="completed">{completedExercisesCount}/{totalExercises}</Badge>
+          <Badge variant="completed">
+            {completedExercisesCount}/{totalExercises}
+          </Badge>
         </div>
       </div>
 
@@ -298,27 +318,27 @@ export default function StudentWorkout() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/95 backdrop-blur-lg flex flex-col items-center justify-center px-6"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/95 px-6 backdrop-blur-lg"
           >
-            <motion.div
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              className="text-center"
-            >
-              <p className="text-muted-foreground mb-2">Descanse</p>
+            <motion.div initial={{ scale: 0.8 }} animate={{ scale: 1 }} className="text-center">
+              <p className="mb-2 text-muted-foreground">Descanse</p>
               <motion.p
                 key={restTimer}
                 initial={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
-                className="text-7xl font-display font-bold text-foreground mb-6 animate-timer-pulse"
+                className="mb-6 animate-timer-pulse font-display text-7xl font-bold text-foreground"
               >
                 {formatTime(restTimer)}
               </motion.p>
-              <p className="text-sm text-muted-foreground mb-8">
+              <p className="mb-8 text-sm text-muted-foreground">
                 Próxima série: {currentSetIndex + 2} de {currentExercise.sets}
               </p>
               <div className="flex gap-4">
-                <Button variant="outline" size="lg" onClick={() => setRestTimer(prev => (prev || 0) + 15)}>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setRestTimer((prev) => (prev || 0) + 15)}
+                >
                   +15s
                 </Button>
                 <Button variant="hero" size="lg" onClick={skipRest}>
@@ -341,9 +361,9 @@ export default function StudentWorkout() {
           {/* Exercise Info */}
           <Card variant="exercise-active" className="mb-6">
             <CardContent className="p-5">
-              <div className="flex items-start justify-between mb-3">
+              <div className="mb-3 flex items-start justify-between">
                 <div>
-                  <h1 className="text-xl font-display font-bold text-foreground mb-1">
+                  <h1 className="mb-1 font-display text-xl font-bold text-foreground">
                     {currentExercise.name}
                   </h1>
                   <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -356,14 +376,19 @@ export default function StudentWorkout() {
                 </div>
               </div>
               {currentExercise.notes && (
-                <p className="text-sm text-accent bg-accent/10 px-3 py-2 rounded-lg">
+                <p className="rounded-lg bg-accent/10 px-3 py-2 text-sm text-accent">
                   💡 {currentExercise.notes}
                 </p>
               )}
               {currentExercise.video_url && (
-                 <a href={currentExercise.video_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline mt-2 block">
-                    Ver vídeo demonstrativo
-                 </a>
+                <a
+                  href={currentExercise.video_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 block text-xs text-primary hover:underline"
+                >
+                  Ver vídeo demonstrativo
+                </a>
               )}
             </CardContent>
           </Card>
@@ -372,15 +397,15 @@ export default function StudentWorkout() {
           {!exerciseCompleted && currentSet && (
             <Card variant="elevated" className="mb-6">
               <CardContent className="p-5">
-                <div className="text-center mb-6">
-                  <Badge variant="sets" className="mb-2 text-lg px-4 py-1">
+                <div className="mb-6 text-center">
+                  <Badge variant="sets" className="mb-2 px-4 py-1 text-lg">
                     Série {currentSetIndex + 1} de {currentExercise.sets}
                   </Badge>
                 </div>
 
                 {/* Reps Counter */}
                 <div className="mb-6">
-                  <p className="text-sm text-muted-foreground text-center mb-3">Repetições</p>
+                  <p className="mb-3 text-center text-sm text-muted-foreground">Repetições</p>
                   <div className="flex items-center justify-center gap-4">
                     <Button
                       variant="outline"
@@ -390,7 +415,7 @@ export default function StudentWorkout() {
                       <Minus className="h-6 w-6" />
                     </Button>
                     <div className="w-24 text-center">
-                      <span className="text-5xl font-display font-bold text-foreground">
+                      <span className="font-display text-5xl font-bold text-foreground">
                         {currentSet.reps}
                       </span>
                     </div>
@@ -406,7 +431,7 @@ export default function StudentWorkout() {
 
                 {/* Weight Input */}
                 <div className="mb-6">
-                  <p className="text-sm text-muted-foreground text-center mb-3">Peso (kg)</p>
+                  <p className="mb-3 text-center text-sm text-muted-foreground">Peso (kg)</p>
                   <div className="flex items-center justify-center gap-4">
                     <Button
                       variant="outline"
@@ -416,7 +441,7 @@ export default function StudentWorkout() {
                       <Minus className="h-6 w-6" />
                     </Button>
                     <div className="w-24 text-center">
-                      <span className="text-5xl font-display font-bold text-foreground">
+                      <span className="font-display text-5xl font-bold text-foreground">
                         {currentSet.weight}
                       </span>
                     </div>
@@ -438,9 +463,11 @@ export default function StudentWorkout() {
                   onClick={completeSet}
                   disabled={logSetMutation.isPending}
                 >
-                  {logSetMutation.isPending ? "Salvando..." : (
+                  {logSetMutation.isPending ? (
+                    'Salvando...'
+                  ) : (
                     <>
-                      <Check className="h-6 w-6 mr-2" />
+                      <Check className="mr-2 h-6 w-6" />
                       Completar Série
                     </>
                   )}
@@ -458,38 +485,40 @@ export default function StudentWorkout() {
             >
               <Card variant="gradient" className="border-success/30">
                 <CardContent className="p-6 text-center">
-                  <div className="h-16 w-16 rounded-full bg-success/20 flex items-center justify-center mx-auto mb-4">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/20">
                     <Check className="h-8 w-8 text-success" />
                   </div>
-                  <h3 className="text-lg font-display font-semibold text-foreground mb-2">
+                  <h3 className="mb-2 font-display text-lg font-semibold text-foreground">
                     Exercício Completo!
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="mb-4 text-sm text-muted-foreground">
                     {completedSetsCount} séries registradas
                   </p>
-                  
+
                   {currentExerciseIndex < totalExercises - 1 ? (
                     <Button
                       variant="hero"
                       size="touch"
                       className="w-full"
-                      onClick={() => setCurrentExerciseIndex(prev => prev + 1)}
+                      onClick={() => setCurrentExerciseIndex((prev) => prev + 1)}
                     >
                       Próximo Exercício
-                      <ChevronDown className="h-5 w-5 ml-2 rotate-[-90deg]" />
+                      <ChevronDown className="ml-2 h-5 w-5 rotate-[-90deg]" />
                     </Button>
                   ) : (
-                    <Button 
-                        variant="hero-accent" 
-                        size="touch" 
-                        className="w-full"
-                        onClick={handleFinishWorkout}
-                        disabled={finishWorkoutMutation.isPending}
+                    <Button
+                      variant="hero-accent"
+                      size="touch"
+                      className="w-full"
+                      onClick={handleFinishWorkout}
+                      disabled={finishWorkoutMutation.isPending}
                     >
-                      {finishWorkoutMutation.isPending ? "Finalizando..." : (
+                      {finishWorkoutMutation.isPending ? (
+                        'Finalizando...'
+                      ) : (
                         <>
-                            Finalizar Treino
-                            <Check className="h-5 w-5 ml-2" />
+                          Finalizar Treino
+                          <Check className="ml-2 h-5 w-5" />
                         </>
                       )}
                     </Button>
@@ -501,22 +530,26 @@ export default function StudentWorkout() {
 
           {/* Sets Summary */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground mb-2">Séries registradas</p>
+            <p className="mb-2 text-sm font-medium text-muted-foreground">Séries registradas</p>
             {currentSets.map((set, index) => (
               <div
                 key={index}
-                className={`flex items-center justify-between p-3 rounded-xl ${
+                className={`flex items-center justify-between rounded-xl p-3 ${
                   set.completed
-                    ? 'bg-success/10 border border-success/20'
+                    ? 'border border-success/20 bg-success/10'
                     : index === currentSetIndex
-                    ? 'bg-primary/10 border border-primary/30'
-                    : 'bg-muted/50'
+                      ? 'border border-primary/30 bg-primary/10'
+                      : 'bg-muted/50'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                    set.completed ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'
-                  }`}>
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full ${
+                      set.completed
+                        ? 'bg-success text-success-foreground'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
                     {set.completed ? <Check className="h-4 w-4" /> : set.setNumber}
                   </div>
                   <span className="font-medium text-foreground">Série {set.setNumber}</span>
@@ -534,25 +567,25 @@ export default function StudentWorkout() {
       </div>
 
       {/* Navigation Footer */}
-      <div className="fixed bottom-0 left-0 right-0 glass-strong safe-bottom">
+      <div className="glass-strong safe-bottom fixed bottom-0 left-0 right-0">
         <div className="flex gap-3 p-4">
           <Button
             variant="outline"
             className="flex-1"
             disabled={currentExerciseIndex === 0}
-            onClick={() => setCurrentExerciseIndex(prev => prev - 1)}
+            onClick={() => setCurrentExerciseIndex((prev) => prev - 1)}
           >
-            <ChevronUp className="h-4 w-4 mr-2 rotate-[-90deg]" />
+            <ChevronUp className="mr-2 h-4 w-4 rotate-[-90deg]" />
             Anterior
           </Button>
           <Button
             variant="outline"
             className="flex-1"
             disabled={currentExerciseIndex === totalExercises - 1}
-            onClick={() => setCurrentExerciseIndex(prev => prev + 1)}
+            onClick={() => setCurrentExerciseIndex((prev) => prev + 1)}
           >
             Próximo
-            <ChevronDown className="h-4 w-4 ml-2 rotate-[-90deg]" />
+            <ChevronDown className="ml-2 h-4 w-4 rotate-[-90deg]" />
           </Button>
         </div>
       </div>

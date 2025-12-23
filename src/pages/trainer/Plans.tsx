@@ -1,27 +1,26 @@
-import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import { Plus, Search, Calendar, Dumbbell, MoreVertical, Trash2, Edit } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { useTrainerTemplates } from "@/hooks/useTrainerData";
-import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { useState } from "react";
+import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Search, Calendar, Dumbbell, MoreVertical, Trash2, Edit } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { useTrainerTemplates } from '@/hooks/useTrainerData';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { useState } from 'react';
 
 export default function TrainerPlans() {
   const navigate = useNavigate();
   const { data: plans, isLoading } = useTrainerTemplates();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const filteredPlans = plans?.filter((plan) =>
-    plan.title.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredPlans =
+    plans?.filter((plan) => plan.title.toLowerCase().includes(searchQuery.toLowerCase())) || [];
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center">
         <LoadingSpinner size="lg" text="Carregando planos..." />
       </div>
     );
@@ -30,26 +29,18 @@ export default function TrainerPlans() {
   return (
     <div className="min-h-screen p-6 lg:p-8">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">
+            <h1 className="font-display text-2xl font-bold text-foreground lg:text-3xl">
               Planos de Treino
             </h1>
-            <p className="text-muted-foreground mt-1">
+            <p className="mt-1 text-muted-foreground">
               Gerencie seus modelos de treino para atribuir aos alunos
             </p>
           </div>
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => navigate("/trainer/plans/new")}
-          >
-            <Plus className="h-4 w-4 mr-2" />
+          <Button variant="default" size="lg" onClick={() => navigate('/trainer/plans/new')}>
+            <Plus className="mr-2 h-4 w-4" />
             Novo Plano
           </Button>
         </div>
@@ -63,7 +54,7 @@ export default function TrainerPlans() {
         className="mb-6"
       >
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Buscar planos..."
             value={searchQuery}
@@ -75,7 +66,7 @@ export default function TrainerPlans() {
 
       {/* Plans Grid */}
       {filteredPlans.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filteredPlans.map((plan, index) => (
             <motion.div
               key={plan.id}
@@ -86,11 +77,9 @@ export default function TrainerPlans() {
               <Card variant="interactive" className="h-full">
                 <CardHeader className="flex flex-row items-start justify-between pb-2">
                   <div className="space-y-1">
-                    <CardTitle className="text-base font-semibold">
-                      {plan.title}
-                    </CardTitle>
+                    <CardTitle className="text-base font-semibold">{plan.title}</CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(plan.created_at).toLocaleDateString("pt-BR")}
+                      {new Date(plan.created_at).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                   <Button variant="ghost" size="icon-sm">
@@ -98,25 +87,29 @@ export default function TrainerPlans() {
                   </Button>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+                  <div className="mb-4 flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1.5">
                       <Dumbbell className="h-4 w-4" />
                       <span>{plan.exercises?.length || 0} exercícios</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-2">
-                     <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => navigate(`/trainer/plans/${plan.id}`)}
-                      >
-                      <Edit className="h-3 w-3 mr-2" />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => navigate(`/trainer/plans/${plan.id}`)}
+                    >
+                      <Edit className="mr-2 h-3 w-3" />
                       Editar
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10">
-                        <Trash2 className="h-3 w-3" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
                 </CardContent>
@@ -130,14 +123,14 @@ export default function TrainerPlans() {
           title="Nenhum plano encontrado"
           description={
             searchQuery
-              ? "Tente buscar por outro termo"
-              : "Crie seu primeiro modelo de treino para agilizar o processo."
+              ? 'Tente buscar por outro termo'
+              : 'Crie seu primeiro modelo de treino para agilizar o processo.'
           }
           action={
             !searchQuery
               ? {
-                  label: "Criar Plano",
-                  onClick: () => navigate("/trainer/plans/new"),
+                  label: 'Criar Plano',
+                  onClick: () => navigate('/trainer/plans/new'),
                 }
               : undefined
           }
