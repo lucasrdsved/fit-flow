@@ -10,12 +10,12 @@
 
 ## Phase 2: Authentication UI Components
 
-- [ ] Task: Create Sign Up Form Component
+- [x] Task: Create Sign Up Form Component 6433d3b
   - Create `src/components/auth/SignUpForm.tsx`.
   - Implement email, password, name, and role fields.
   - Add Zod validation schema.
   - **Test:** Verify form validation logic.
-- [ ] Task: Create Login Form Component
+- [~] Task: Create Login Form Component
   - Create `src/components/auth/LoginForm.tsx`.
   - Implement email and password fields.
   - Add Zod validation schema.
