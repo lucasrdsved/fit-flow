@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, Check, Plus, Minus, ChevronDown, ChevronUp, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +28,8 @@ interface Exercise {
   reps: string;
   order_index: number;
   rest_time: number | null;
+  notes?: string;
+  video_url?: string;
 }
 
 interface WorkoutWithExercises {

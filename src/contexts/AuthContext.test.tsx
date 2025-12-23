@@ -1,12 +1,13 @@
+// @ts-nocheck - Suppress strict type checking for test mocks
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from './AuthContext';
 import React from 'react';
 
-// Mock the supabase client
+// Mock the supabase client - use 'any' for mock types to avoid strict Supabase type requirements
 vi.mock('@/integrations/supabase/client', () => {
   const mockUnsubscribe = vi.fn();
-  const mockSubscription = { unsubscribe: mockUnsubscribe };
+  const mockSubscription = { unsubscribe: mockUnsubscribe, id: 'test', callback: vi.fn() };
 
   return {
     supabase: {
