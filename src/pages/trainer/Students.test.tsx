@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import TrainerStudents from './Students';
 import { BrowserRouter } from 'react-router-dom';
@@ -17,7 +17,7 @@ vi.mock('@/contexts/AuthContext', () => ({
 vi.mock('lucide-react', async (importOriginal) => {
   const actual = await importOriginal();
   return {
-    ...(actual as Record<string, unknown>),
+    ...(actual as any),
     Plus: () => <span data-testid="icon-plus" />,
     Search: () => <span data-testid="icon-search" />,
     Filter: () => <span data-testid="icon-filter" />,
@@ -32,11 +32,11 @@ describe('TrainerStudents Filter Bug', () => {
     vi.clearAllMocks();
 
     // Setup default mocks
-    vi.mocked(useAuth).mockReturnValue({
+    (useAuth as any).mockReturnValue({
       userType: 'personal',
     });
 
-    vi.mocked(useTrainerStudents).mockReturnValue({
+    (useTrainerStudents as any).mockReturnValue({
       data: [
         { id: '1', name: 'Student 1', email: 's1@example.com', created_at: '2023-01-01' },
         { id: '2', name: 'Student 2', email: 's2@example.com', created_at: '2023-01-02' },

@@ -40,7 +40,7 @@ export default function StudentProgress() {
       const date = new Date(log.completed_at);
       if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
         if (log.exercise_logs) {
-          log.exercise_logs.forEach((exLog) => {
+          log.exercise_logs.forEach((exLog: any) => {
             if (exLog.completed) {
               volumeKg += (exLog.weight || 0) * (exLog.reps || 0);
             }
@@ -56,7 +56,7 @@ export default function StudentProgress() {
       (a, b) => new Date(b.completed_at).getTime() - new Date(a.completed_at).getTime(),
     );
     let streak = 0;
-    const checkDate = new Date();
+    let checkDate = new Date();
     checkDate.setHours(0, 0, 0, 0);
 
     // Check if there is a log today
@@ -97,7 +97,7 @@ export default function StudentProgress() {
     const recordsMap = new Map();
     logs.forEach((log) => {
       if (log.exercise_logs) {
-        log.exercise_logs.forEach((exLog) => {
+        log.exercise_logs.forEach((exLog: any) => {
           if (exLog.completed && exLog.weight > 0) {
             const name = exLog.exercises?.name;
             if (name) {

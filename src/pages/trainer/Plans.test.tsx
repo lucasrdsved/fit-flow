@@ -24,7 +24,7 @@ describe('TrainerPlans', () => {
   });
 
   it('renders loading state', () => {
-    vi.mocked(TrainerDataHooks.useTrainerTemplates).mockReturnValue({
+    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
       data: null,
       isLoading: true,
     });
@@ -39,7 +39,7 @@ describe('TrainerPlans', () => {
   });
 
   it('renders empty state when no plans', () => {
-    vi.mocked(TrainerDataHooks.useTrainerTemplates).mockReturnValue({
+    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
       data: [],
       isLoading: false,
     });
@@ -70,7 +70,7 @@ describe('TrainerPlans', () => {
       },
     ];
 
-    (TrainerDataHooks.useTrainerTemplates as Mock).mockReturnValue({
+    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
       data: mockPlans,
       isLoading: false,
     });
@@ -92,7 +92,7 @@ describe('TrainerPlans', () => {
       { id: '2', title: 'Cardio', created_at: new Date().toISOString() },
     ];
 
-    vi.mocked(TrainerDataHooks.useTrainerTemplates).mockReturnValue({
+    (TrainerDataHooks.useTrainerTemplates as any).mockReturnValue({
       data: mockPlans,
       isLoading: false,
     });

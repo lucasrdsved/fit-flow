@@ -166,9 +166,9 @@ export default function TrainerPlanEditor() {
                 onClick={() =>
                   append({
                     name: '',
-                    sets: '3', 
+                    sets: 3 as any, // Cast for default value matching transform
                     reps: '10-12',
-                    rest_time: '60',
+                    rest_time: '60' as any,
                     order_index: fields.length,
                   })
                 }

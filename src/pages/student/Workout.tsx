@@ -273,7 +273,7 @@ export default function StudentWorkout() {
   const totalExercises = sortedExercises.length;
 
   // Calculate completed exercises based on logs
-  const completedExercisesCount = sortedExercises.filter((ex: Exercise) => {
+  const completedExercisesCount = sortedExercises.filter((ex: any) => {
     const logs = exerciseLogs[ex.id];
     return logs && logs.every((s) => s.completed);
   }).length;
@@ -291,7 +291,7 @@ export default function StudentWorkout() {
               Exercício {currentExerciseIndex + 1} de {totalExercises}
             </p>
             <div className="mt-1 flex justify-center gap-1">
-              {sortedExercises.map((ex: Exercise, i: number) => (
+              {sortedExercises.map((ex: any, i: number) => (
                 <div
                   key={ex.id}
                   className={`h-1.5 w-6 rounded-full transition-all ${
