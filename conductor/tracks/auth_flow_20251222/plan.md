@@ -27,11 +27,11 @@
 
 ## Phase 3: Authentication Logic Integration
 
-- [~] Task: Implement Sign Up Logic
+- [x] Task: Implement Sign Up Logic d0fa39d
   - Connect `SignUpForm` to Supabase `signUp` API.
   - Handle success and error states (toast notifications).
   - **Test:** Mock Supabase call and verify success/error handling.
-- [ ] Task: Implement Login Logic
+- [~] Task: Implement Login Logic
   - Connect `LoginForm` to Supabase `signInWithPassword` API.
   - Handle success and error states.
   - **Test:** Mock Supabase call and verify success/error handling.
