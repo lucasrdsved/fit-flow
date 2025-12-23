@@ -15,12 +15,12 @@
   - Implement email, password, name, and role fields.
   - Add Zod validation schema.
   - **Test:** Verify form validation logic.
-- [~] Task: Create Login Form Component
+- [x] Task: Create Login Form Component 0c0c131
   - Create `src/components/auth/LoginForm.tsx`.
   - Implement email and password fields.
   - Add Zod validation schema.
   - **Test:** Verify form validation logic.
-- [ ] Task: Create Auth Layout
+- [~] Task: Create Auth Layout
   - Create `src/components/layouts/AuthLayout.tsx` for consistent styling of auth pages.
   - **Test:** Visual check (screenshot/snapshot).
 - [ ] Task: Conductor - User Manual Verification 'Authentication UI Components' (Protocol in workflow.md)
