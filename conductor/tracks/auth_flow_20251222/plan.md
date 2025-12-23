@@ -42,13 +42,13 @@
 
 ## Phase 4: Routing & Protection (Refactored for Student-First)
 
-- [~] Task: Refactor Public Login Page
+- [x] Task: Refactor Public Login Page 2f12f78
   - Update `src/pages/auth/Login.tsx` to be the main entry point (`/`).
   - Remove "Sign Up" links.
   - Make "Trainer Login" discrete or use the same form with role redirection.
   - **Test:** Verify clean login interface.
-- [ ] Task: Update App Routing
+- [x] Task: Update App Routing 2f12f78
   - Set `Login.tsx` as the element for `/`.
   - Remove public `register` routes.
   - Ensure protected routes redirect to `/` (Login) if unauthenticated.
-- [ ] Task: Conductor - User Manual Verification 'Student-First Auth Flow' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Student-First Auth Flow' (Protocol in workflow.md)
