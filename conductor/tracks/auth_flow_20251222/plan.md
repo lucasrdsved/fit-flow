@@ -8,7 +8,7 @@
   - **Verification:** Log Supabase client instance to console.
 - [x] Task: Conductor - User Manual Verification 'Setup & Configuration' (Protocol in workflow.md) ae16983
 
-## Phase 2: Authentication UI Components
+## Phase 2: Authentication UI Components [checkpoint: f240e74]
 
 - [x] Task: Create Sign Up Form Component 6433d3b
   - Create `src/components/auth/SignUpForm.tsx`.
@@ -23,11 +23,11 @@
 - [x] Task: Create Auth Layout c0d4e3b
   - Create `src/components/layouts/AuthLayout.tsx` for consistent styling of auth pages.
   - **Test:** Visual check (screenshot/snapshot).
-- [~] Task: Conductor - User Manual Verification 'Authentication UI Components' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Authentication UI Components' (Protocol in workflow.md) f240e74
 
 ## Phase 3: Authentication Logic Integration
 
-- [ ] Task: Implement Sign Up Logic
+- [~] Task: Implement Sign Up Logic
   - Connect `SignUpForm` to Supabase `signUp` API.
   - Handle success and error states (toast notifications).
   - **Test:** Mock Supabase call and verify success/error handling.
