@@ -40,7 +40,7 @@
   - **Test:** Mock Supabase call.
 - [x] Task: Conductor - User Manual Verification 'Authentication Logic Integration' (Protocol in workflow.md) c04e874
 
-## Phase 4: Routing & Protection (Refactored for Student-First)
+## Phase 4: Routing & Protection (Refactored for Student-First) [checkpoint: 0a2ecc8]
 
 - [x] Task: Refactor Public Login Page 2f12f78
   - Update `src/pages/auth/Login.tsx` to be the main entry point (`/`).
@@ -51,4 +51,4 @@
   - Set `Login.tsx` as the element for `/`.
   - Remove public `register` routes.
   - Ensure protected routes redirect to `/` (Login) if unauthenticated.
-- [~] Task: Conductor - User Manual Verification 'Student-First Auth Flow' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Student-First Auth Flow' (Protocol in workflow.md) 0a2ecc8
