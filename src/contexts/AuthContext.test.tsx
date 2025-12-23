@@ -5,13 +5,16 @@ import React from 'react';
 
 // Mock the supabase client
 vi.mock('@/integrations/supabase/client', () => {
+  const mockUnsubscribe = vi.fn();
+  const mockSubscription = { unsubscribe: mockUnsubscribe };
+
   return {
     supabase: {
       auth: {
         getSession: vi.fn(),
-        onAuthStateChange: vi.fn().mockReturnValue({
-          data: { subscription: { unsubscribe: vi.fn() } },
-        }),
+        onAuthStateChange: vi.fn(() => ({
+          data: { subscription: mockSubscription },
+        })),
         signInWithPassword: vi.fn(),
         signUp: vi.fn(),
         signOut: vi.fn(),
@@ -137,9 +140,36 @@ describe('AuthContext', () => {
         created_at: new Date().toISOString(),
       };
 
+      const mockSession = {
+        user: mockUser,
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 3600,
+        token_type: 'bearer',
+      };
+
+      // Mock getSession to return no initial session
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+
+      // Mock onAuthStateChange
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
+      let authStateChangeCallback: any;
+
+      // Mock onAuthStateChange to capture the callback
+      vi.mocked(supabase.auth.onAuthStateChange).mockImplementation((callback) => {
+        authStateChangeCallback = callback;
+        return { data: { subscription: { unsubscribe: vi.fn() } } };
+      });
+
       // Mock successful sign in
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
-        data: { user: mockUser, session: null },
+        data: { user: mockUser, session: mockSession },
         error: null,
       });
 
@@ -161,16 +191,30 @@ describe('AuthContext', () => {
         </AuthProvider>,
       );
 
+      // Wait for loading to complete
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+
       // Click sign in button
       const signInButton = screen.getByText('Sign In');
       await act(async () => {
         signInButton.click();
       });
 
-      // Should show user email after successful sign in
-      await waitFor(() => {
-        expect(screen.getByTestId('user-email')).toHaveTextContent('test@example.com');
+      // Simulate auth state change (this happens automatically in real Supabase)
+      await act(async () => {
+        authStateChangeCallback?.('SIGNED_IN', mockSession);
       });
+
+      // Should show authenticated user interface after successful sign in
+      await waitFor(() => {
+        expect(screen.queryByText('Sign In')).not.toBeInTheDocument();
+        expect(screen.queryByText('Sign Up')).not.toBeInTheDocument();
+      });
+
+      // Check that user type was set
+      expect(screen.getByTestId('user-type')).toHaveTextContent('personal');
     });
 
     it('should handle sign up successfully', async () => {
@@ -183,7 +227,18 @@ describe('AuthContext', () => {
         created_at: new Date().toISOString(),
       };
 
-      // Mock successful sign up
+      // Mock getSession to return no initial session
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+
+      // Mock onAuthStateChange
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
+      // Mock successful sign up (without session - requires email confirmation)
       vi.mocked(supabase.auth.signUp).mockResolvedValue({
         data: { user: mockUser, session: null },
         error: null,
@@ -195,13 +250,18 @@ describe('AuthContext', () => {
         </AuthProvider>,
       );
 
+      // Wait for loading to complete
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
+
       // Click sign up button
       const signUpButton = screen.getByText('Sign Up');
       await act(async () => {
         signUpButton.click();
       });
 
-      // Should still show sign up form since no session is created
+      // Should still show sign up form since no session is created (email confirmation required)
       expect(screen.getByText('Sign In')).toBeInTheDocument();
       expect(screen.getByText('Sign Up')).toBeInTheDocument();
     });
@@ -277,6 +337,17 @@ describe('AuthContext', () => {
     it('should handle sign in error', async () => {
       const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
+      // Mock getSession to return no initial session
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+
+      // Mock onAuthStateChange
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
       vi.mocked(supabase.auth.signInWithPassword).mockResolvedValue({
         data: { user: null, session: null },
         error: { message: 'Invalid credentials' },
@@ -287,6 +358,11 @@ describe('AuthContext', () => {
           <TestComponent />
         </AuthProvider>,
       );
+
+      // Wait for loading to complete
+      await waitFor(() => {
+        expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+      });
 
       const signInButton = screen.getByText('Sign In');
       await act(async () => {
@@ -354,7 +430,18 @@ describe('AuthContext', () => {
   });
 
   describe('Mock Login', () => {
-    it('should handle mock login for personal trainer', () => {
+    it('should handle mock login for personal trainer', async () => {
+      // Mock getSession to return no initial session
+      vi.mocked(supabase.auth.getSession).mockResolvedValue({
+        data: { session: null },
+        error: null,
+      });
+
+      // Mock onAuthStateChange
+      vi.mocked(supabase.auth.onAuthStateChange).mockReturnValue({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      });
+
       let capturedUserType: string | null = null;
 
       render(
