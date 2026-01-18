@@ -22,6 +22,8 @@ const TrainerStudentDetails = lazy(() => import('./pages/trainer/StudentDetails'
 const TrainerNewStudent = lazy(() => import('./pages/trainer/NewStudent'));
 const TrainerPlans = lazy(() => import('./pages/trainer/Plans'));
 const TrainerPlanEditor = lazy(() => import('./pages/trainer/PlanEditor'));
+const TrainerAnalytics = lazy(() => import('./pages/trainer/Analytics'));
+const TrainerMessages = lazy(() => import('./pages/trainer/Messages'));
 
 // Student pages
 const StudentLayout = lazy(() => import('./components/layout/StudentLayout').then(module => ({ default: module.StudentLayout })));
@@ -149,6 +151,8 @@ const App = () => (
                     <Route path="plans" element={<TrainerPlans />} />
                     <Route path="plans/new" element={<TrainerPlanEditor />} />
                     <Route path="plans/:id" element={<TrainerPlanEditor />} />
+                    <Route path="analytics" element={<TrainerAnalytics />} />
+                    <Route path="messages" element={<TrainerMessages />} />
                     <Route path="calendar" element={<TrainerDashboard />} />
                     <Route path="exercises" element={<TrainerDashboard />} />
                     <Route path="settings" element={<TrainerDashboard />} />
