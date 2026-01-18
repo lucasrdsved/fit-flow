@@ -3,11 +3,19 @@ import { TrendingUp, Trophy, Flame, Calendar, Weight, Dumbbell } from 'lucide-re
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useStudentWorkoutLogs } from '@/hooks/useStudentData';
+import { useStudentAnalytics } from '@/hooks/useAnalytics';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useMemo } from 'react';
+import { 
+  ProgressLineChart, 
+  VolumeBarChart, 
+  WeeklyActivityChart,
+  PersonalRecordPieChart 
+} from '@/components/analytics/Charts';
 
 export default function StudentProgress() {
   const { data: logs, isLoading } = useStudentWorkoutLogs();
+  const analytics = useStudentAnalytics(logs || []);
 
   const stats = useMemo(() => {
     if (!logs || logs.length === 0) {
@@ -40,7 +48,7 @@ export default function StudentProgress() {
       const date = new Date(log.completed_at);
       if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
         if (log.exercise_logs) {
-          log.exercise_logs.forEach((exLog: any) => {
+          log.exercise_logs.forEach((exLog: { completed: boolean; weight: number; reps: number }) => {
             if (exLog.completed) {
               volumeKg += (exLog.weight || 0) * (exLog.reps || 0);
             }
@@ -72,51 +80,14 @@ export default function StudentProgress() {
     // This is a naive implementation, good enough for MVP
     // Better would be to iterate days back and check if log exists
 
-    // 5. Weekly Activity
-    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    const weeklyMap = new Array(7).fill(0);
-
-    // Get start of week (Sunday)
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - now.getDay());
-    startOfWeek.setHours(0, 0, 0, 0);
-
-    logs.forEach((log) => {
-      const date = new Date(log.completed_at);
-      if (date >= startOfWeek) {
-        weeklyMap[date.getDay()] += 1; // Count workouts or volume? Count workouts.
-      }
-    });
-
-    const weeklyData = weeklyMap.map((val, i) => ({
-      day: days[i],
-      value: val > 0 ? 100 : 0, // Simplified visualization: 100% height if worked out, 0 if not
+    // 5. Weekly Activity - Using new analytics data
+    const weeklyData = analytics.weeklyProgress.map(day => ({
+      day: day.day,
+      value: day.workouts > 0 ? 100 : 0,
     }));
 
-    // 6. Personal Records (Max weight per exercise)
-    const recordsMap = new Map();
-    logs.forEach((log) => {
-      if (log.exercise_logs) {
-        log.exercise_logs.forEach((exLog: any) => {
-          if (exLog.completed && exLog.weight > 0) {
-            const name = exLog.exercises?.name;
-            if (name) {
-              const currentMax = recordsMap.get(name);
-              if (!currentMax || exLog.weight > currentMax.weight) {
-                recordsMap.set(name, {
-                  exercise: name,
-                  weight: exLog.weight,
-                  reps: exLog.reps,
-                  date: log.completed_at,
-                });
-              }
-            }
-          }
-        });
-      }
-    });
-
-    const records = Array.from(recordsMap.values()).slice(0, 5); // Top 5
+    // 6. Personal Records - Using new analytics data
+    const records = analytics.personalRecords;
 
     return {
       totalWorkouts,
@@ -126,7 +97,7 @@ export default function StudentProgress() {
       weeklyData,
       records,
     };
-  }, [logs]);
+  }, [logs, analytics]);
 
   if (isLoading) {
     return (
@@ -187,7 +158,7 @@ export default function StudentProgress() {
           ))}
         </motion.div>
 
-        {/* Weekly Activity */}
+        {/* Weekly Activity Chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -202,32 +173,62 @@ export default function StudentProgress() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex h-32 items-end justify-between gap-2">
-                {stats.weeklyData.map((day, index) => (
-                  <div key={index} className="flex flex-1 flex-col items-center gap-2">
-                    <div
-                      className="relative w-full rounded-t-lg bg-muted"
-                      style={{ height: '100px' }}
-                    >
-                      <motion.div
-                        initial={{ height: 0 }}
-                        animate={{ height: `${day.value}%` }}
-                        transition={{ delay: 0.3 + index * 0.05, duration: 0.5 }}
-                        className={`absolute bottom-0 left-0 right-0 rounded-t-lg ${
-                          day.value > 0 ? 'bg-gradient-accent' : 'bg-transparent'
-                        }`}
-                      />
-                    </div>
-                    <span
-                      className={`text-xs font-medium ${
-                        day.value > 0 ? 'text-foreground' : 'text-muted-foreground'
-                      }`}
-                    >
-                      {day.day}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <WeeklyActivityChart 
+                data={analytics.weeklyProgress}
+                height={200}
+                title="Treinos por Dia"
+                subtitle="Última semana"
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Volume Progress Chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25 }}
+          className="mb-6"
+        >
+          <Card variant="elevated">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Weight className="h-5 w-5 text-primary" />
+                Volume de Treino
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <VolumeBarChart 
+                data={analytics.monthlyVolume}
+                height={250}
+                title="Volume Semanal (Toneladas)"
+                subtitle="Últimas 4 semanas"
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Exercise Distribution */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mb-6"
+        >
+          <Card variant="elevated">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Dumbbell className="h-5 w-5 text-secondary" />
+                Distribuição de Exercícios
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PersonalRecordPieChart 
+                data={analytics.exerciseDistribution}
+                height={300}
+                title="Exercícios Mais Realizados"
+                subtitle="Distribuição dos últimos treinos"
+              />
             </CardContent>
           </Card>
         </motion.div>

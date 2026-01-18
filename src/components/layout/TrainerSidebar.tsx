@@ -8,14 +8,19 @@ import {
   Settings,
   Dumbbell,
   ChevronLeft,
+  BarChart3,
+  MessageCircle,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { useMessages } from '@/hooks/useMessages';
 
 const trainerNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/trainer' },
   { icon: Users, label: 'Alunos', href: '/trainer/students' },
   { icon: ClipboardList, label: 'Planos', href: '/trainer/plans' },
+  { icon: BarChart3, label: 'Analytics', href: '/trainer/analytics' },
+  { icon: MessageCircle, label: 'Mensagens', href: '/trainer/messages' },
   { icon: Calendar, label: 'Agenda', href: '/trainer/calendar' },
   { icon: Dumbbell, label: 'Exercícios', href: '/trainer/exercises' },
   { icon: Settings, label: 'Config', href: '/trainer/settings' },
@@ -28,6 +33,10 @@ interface TrainerSidebarProps {
 
 export function TrainerSidebar({ collapsed = false, onToggle }: TrainerSidebarProps) {
   const location = useLocation();
+  const { conversations } = useMessages();
+
+  // Calculate unread messages count
+  const unreadCount = conversations.reduce((total, conv) => total + conv.unread_count, 0);
 
   return (
     <aside
@@ -80,7 +89,7 @@ export function TrainerSidebar({ collapsed = false, onToggle }: TrainerSidebarPr
               key={item.href}
               to={item.href}
               className={cn(
-                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
@@ -96,6 +105,15 @@ export function TrainerSidebar({ collapsed = false, onToggle }: TrainerSidebarPr
                   transition={{ delay: 0.05 }}
                 >
                   {item.label}
+                </motion.span>
+              )}
+              {item.href === '/trainer/messages' && unreadCount > 0 && !collapsed && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -right-2 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-xs text-white"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </motion.span>
               )}
             </Link>
